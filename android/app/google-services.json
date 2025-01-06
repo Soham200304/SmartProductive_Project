@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "508448746072",
+    "project_id": "spauthentication-ecf78",
+    "storage_bucket": "spauthentication-ecf78.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:508448746072:android:88720ae5a8e4d7ffdf382d",
+        "android_client_info": {
+          "package_name": "com.example.smartproductive_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9M6JmmPb3CjTpImkNAs7_rgLmm440syc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:508448746072:android:09f63d2da623c7f5df382d",
+        "android_client_info": {
+          "package_name": "com.smartproductive.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9M6JmmPb3CjTpImkNAs7_rgLmm440syc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
