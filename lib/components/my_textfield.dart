@@ -23,11 +23,11 @@ class MyTextfield  extends StatelessWidget{
         decoration: InputDecoration(
           prefixIcon: prefixIcon,
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(28.0),
+            borderRadius: BorderRadius.circular(8.0),
             borderSide: const BorderSide(color: Colors.white),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(28.0),
+            borderRadius: BorderRadius.circular(8.0),
             borderSide: BorderSide(color: Colors.grey),
           ),
           fillColor: Colors.blue.shade100,

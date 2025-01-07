@@ -84,31 +84,34 @@ class _SignupPage extends State<SignupPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF0A85ED), // Inner color
-              Color(0xFF2B2D42), // Outer color
+              Color(0xFF90E0EF), // Frosty blue
+              Color(0xFF00B4D8), // Light aqua blue            ],
+              Color(0xFF0096C7), // Blue lagoon
             ],
           ),
         ),
         child: SafeArea(
-          child: Center(
+          child: Align(
+            alignment: Alignment.topCenter,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 30),
                   //AppTitle
-                  Image.asset('lib/images/smartproductive_logo.png'),
+                  Image.asset('lib/images/SmartProductivee_final_.png'),
                   // Text(
                   //   "SmartProductive",
                   //   style: GoogleFonts.alike(fontSize: 45, fontWeight: FontWeight.bold,color: Colors.blue[100]),
                   // ),
-                  const SizedBox(height: 1),
+                  const SizedBox(height: 20),
                   //welcome back, you've been missed
                   Text('Don\'t have an Account?',
-                    style: GoogleFonts.acme(fontSize: 25, color: Colors.white),
+                    style: GoogleFonts.acme(fontSize: 22, color: Colors.black),
                   ),
                   Text(
                     'SignUp Here!!',
-                    style: GoogleFonts.acme(fontSize: 18, color: Colors.white),
+                    style: GoogleFonts.acme(fontSize: 18, color: Colors.black),
                   ),
                   const SizedBox(height: 25),
                   //username TextField
@@ -134,16 +137,14 @@ class _SignupPage extends State<SignupPage> {
                     obscureText: true,
                     prefixIcon: const Icon(Icons.lock),
                   ),
-                  const SizedBox(height: 10),
-                  //forgot password
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 15),
                   //signin button
                   MyButton(
                     text:"Sign Up",
                     onTap: signUserUp,
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 5),
                   //or continue with
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -188,7 +189,7 @@ class _SignupPage extends State<SignupPage> {
                   //     ),
                   //   ],
                   // ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 35),
                   //not a member? register now
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -205,10 +206,10 @@ class _SignupPage extends State<SignupPage> {
                         child: Text('Login Now',
                           style: TextStyle(
                               fontSize: 18,
-                              color: Colors.blue[700],
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
                               decoration:TextDecoration.underline,
-                              decorationColor: Colors.blue[700]
+                              decorationColor: Colors.white
                           ),
                         ),
                       ),

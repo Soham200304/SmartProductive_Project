@@ -76,31 +76,35 @@ class _LoginPageState extends State<LoginPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF0A85ED), // Inner color
-              Color(0xFF2B2D42), // Outer color
+              Color(0xFF90E0EF), // Frosty blue
+              Color(0xFF00B4D8), // Light aqua blue            ],
+              Color(0xFF0096C7), // Blue lagoon
+
             ],
           ),
         ),
         child: SafeArea(
-          child: Center(
+          child: Align(
+            alignment: Alignment.topCenter,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 30),
                   //AppTitle
-                  Image.asset('lib/images/smartproductive_logo.png'),
+                  Image.asset('lib/images/SmartProductivee_final_.png'),
                   // Text(
                   //   "SmartProductive",
                   //   style: GoogleFonts.alike(fontSize: 45, fontWeight: FontWeight.bold,color: Colors.blue[100]),
                   // ),
-                  const SizedBox(height: 1),
+                  const SizedBox(height: 25),
                   //welcome back, you've been missed
                   Text('Welcome back!',
-                    style: GoogleFonts.acme(fontSize: 25, color: Colors.white),
+                    style: GoogleFonts.acme(fontSize: 22, color: Colors.black),
                   ),
                   Text(
                     'Let\'s go on remission!!',
-                    style: GoogleFonts.acme(fontSize: 18, color: Colors.white),
+                    style: GoogleFonts.acme(fontSize: 18, color: Colors.black),
                   ),
                   const SizedBox(height: 25),
                   //username TextField
@@ -119,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                     prefixIcon: const Icon(Icons.lock),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 5),
                   //forgot password
                   const Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -128,19 +132,19 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         Text(
                           'Forgot Password?',
-                          style: TextStyle(color: Colors.black),
+                          style: TextStyle(color: Colors.black, decoration: TextDecoration.underline),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 15),
                   //signin button
                   MyButton(
                     text: "Login",
                     onTap: signUserIn,
                   ),
 
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 5),
                   //or continue with
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -185,7 +189,7 @@ class _LoginPageState extends State<LoginPage> {
                   //     ),
                   //   ],
                   // ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 45),
                   //not a member? register now
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -202,10 +206,10 @@ class _LoginPageState extends State<LoginPage> {
                         child: Text('Register now',
                           style: TextStyle(
                             fontSize: 18,
-                            color: Colors.blue[700],
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                             decoration:TextDecoration.underline,
-                            decorationColor: Colors.blue[700]
+                            decorationColor: Colors.white
                           ),
                         ),
                       ),
