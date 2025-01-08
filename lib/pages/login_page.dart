@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
         context: context,
         builder:(context) {
           return AlertDialog(
-            backgroundColor: Colors.blue,
+            backgroundColor: Color(0xFF90E0EF), // Frosty blue
             title: Text(
               message,
               style: const TextStyle(fontSize: 25),
@@ -79,7 +79,6 @@ class _LoginPageState extends State<LoginPage> {
               Color(0xFF90E0EF), // Frosty blue
               Color(0xFF00B4D8), // Light aqua blue            ],
               Color(0xFF0096C7), // Blue lagoon
-
             ],
           ),
         ),
@@ -92,12 +91,15 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const SizedBox(height: 30),
                   //AppTitle
-                  Image.asset('lib/images/SmartProductivee_final_.png'),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Image.asset('lib/images/sp_final.png',),
+                  ),
                   // Text(
                   //   "SmartProductive",
                   //   style: GoogleFonts.alike(fontSize: 45, fontWeight: FontWeight.bold,color: Colors.blue[100]),
                   // ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 40),
                   //welcome back, you've been missed
                   Text('Welcome back!',
                     style: GoogleFonts.acme(fontSize: 22, color: Colors.black),
@@ -113,6 +115,7 @@ class _LoginPageState extends State<LoginPage> {
                     hintText: "Email",
                     obscureText: false,
                     prefixIcon: const Icon(Icons.person),
+                    keyboardType: TextInputType.emailAddress,
                   ),
                   const SizedBox(height: 10),
                   //password text field
@@ -121,6 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                     hintText: "Password",
                     obscureText: true,
                     prefixIcon: const Icon(Icons.lock),
+                    keyboardType: TextInputType.text
                   ),
 
                   const SizedBox(height: 5),

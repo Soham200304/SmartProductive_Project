@@ -99,12 +99,15 @@ class _SignupPage extends State<SignupPage> {
                 children: [
                   const SizedBox(height: 30),
                   //AppTitle
-                  Image.asset('lib/images/SmartProductivee_final_.png'),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Image.asset('lib/images/sp_final.png'),
+                  ),
                   // Text(
                   //   "SmartProductive",
                   //   style: GoogleFonts.alike(fontSize: 45, fontWeight: FontWeight.bold,color: Colors.blue[100]),
                   // ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 40),
                   //welcome back, you've been missed
                   Text('Don\'t have an Account?',
                     style: GoogleFonts.acme(fontSize: 22, color: Colors.black),
@@ -120,6 +123,7 @@ class _SignupPage extends State<SignupPage> {
                     hintText: "Email",
                     obscureText: false,
                     prefixIcon: const Icon(Icons.person),
+                    keyboardType: TextInputType.emailAddress
                   ),
                   const SizedBox(height: 10),
                   //password text field
@@ -128,6 +132,7 @@ class _SignupPage extends State<SignupPage> {
                     hintText: "Password",
                     obscureText: true,
                     prefixIcon: const Icon(Icons.lock),
+                    keyboardType: TextInputType.text
                   ),
                   const SizedBox(height: 10),
                   //confirm password text field
@@ -136,6 +141,7 @@ class _SignupPage extends State<SignupPage> {
                     hintText: "Confirm Password",
                     obscureText: true,
                     prefixIcon: const Icon(Icons.lock),
+                    keyboardType: TextInputType.text,
                   ),
                   const SizedBox(height: 15),
                   //signin button

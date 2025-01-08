@@ -1,0 +1,10 @@
+flutter_native_splash:
+  android: true
+  ios: true
+  web: false
+  background_image: "lib/images/background_color.png"
+  image: "lib/images/logosp_demo.png"
+
+  android_12:
+    image: "lib/images/logosp_demo.png"
+    color: "#48CAE3" # This will be overridden by your gradient in native code.
