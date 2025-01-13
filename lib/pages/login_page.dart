@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
             end: Alignment.bottomCenter,
             colors: [
               Color(0xFF90E0EF), // Frosty blue
-              Color(0xFF00B4D8), // Light aqua blue            ],
+              Color(0xFF00B4D8), // Light aqua blue
               Color(0xFF0096C7), // Blue lagoon
             ],
           ),
