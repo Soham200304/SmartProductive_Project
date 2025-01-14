@@ -129,14 +129,14 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 5),
                   //forgot password
-                  const Padding(
+                  Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
                           'Forgot Password?',
-                          style: TextStyle(color: Colors.black, decoration: TextDecoration.underline),
+                          style: GoogleFonts.alice(color: Colors.black, decoration: TextDecoration.underline),
                         ),
                       ],
                     ),
@@ -198,8 +198,8 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Not a member? ",
-                        style: TextStyle(
+                      Text("Not a member? ",
+                        style: GoogleFonts.acme(
                           fontSize: 18,
                           color: Colors.black,
                         ),
@@ -208,10 +208,9 @@ class _LoginPageState extends State<LoginPage> {
                       GestureDetector(
                         onTap: widget.onTap,
                         child: Text('Register now',
-                          style: TextStyle(
+                          style: GoogleFonts.acme(
                             fontSize: 18,
                             color: Colors.white,
-                            fontWeight: FontWeight.bold,
                             decoration:TextDecoration.underline,
                             decorationColor: Colors.white
                           ),

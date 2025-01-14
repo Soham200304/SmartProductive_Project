@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 class MyButton extends StatelessWidget {
 
   final Function()? onTap;
@@ -28,10 +29,7 @@ class MyButton extends StatelessWidget {
         child: Center(
           child: Text(
             text,
-            style: const TextStyle(color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18
-            ),
+            style: GoogleFonts.alice(color: Colors.white, fontSize: 18),
           ),
         ),
       ),

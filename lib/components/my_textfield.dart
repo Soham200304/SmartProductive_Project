@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyTextfield  extends StatelessWidget{
   final controller;
@@ -20,6 +21,8 @@ class MyTextfield  extends StatelessWidget{
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: TextField(
+        cursorColor: Colors.blue[400],
+        style: GoogleFonts.alice(),
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,

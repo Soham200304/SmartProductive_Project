@@ -3,8 +3,8 @@ flutter_native_splash:
   ios: true
   web: false
   background_image: "lib/images/background_color.png"
-  image: "lib/images/logosp_demo.png"
+  image: "lib/images/sp_native_splash_.png"
 
   android_12:
-    image: "lib/images/logosp_demo.png"
+    image: "lib/images/sp_native_splash_.png"
     color: "#48CAE3" # This will be overridden by your gradient in native code.

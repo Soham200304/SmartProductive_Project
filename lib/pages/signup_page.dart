@@ -200,8 +200,8 @@ class _SignupPage extends State<SignupPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Already have an Account? ",
-                        style: TextStyle(
+                      Text("Already have an Account? ",
+                        style: GoogleFonts.acme(
                           fontSize: 18,
                           color: Colors.black,
                         ),
@@ -210,10 +210,9 @@ class _SignupPage extends State<SignupPage> {
                       GestureDetector(
                         onTap: widget.onTap,
                         child: Text('Login Now',
-                          style: TextStyle(
+                          style: GoogleFonts.acme(
                               fontSize: 18,
                               color: Colors.white,
-                              fontWeight: FontWeight.bold,
                               decoration:TextDecoration.underline,
                               decorationColor: Colors.white
                           ),

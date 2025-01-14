@@ -42,14 +42,14 @@ class _HomePageState extends State<HomePage> {
                 leading: Icon(Icons.home, size: 30),
                 title: Text('H O M E'),
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomePage()));
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
                 },
               ),
               ListTile(
                 leading: Icon(Icons.chat, size: 30),
                 title: Text('P - B U D D Y'),
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => ProdBuddy()));
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => ProdBuddy()));
                 },
               ),
               ListTile(
