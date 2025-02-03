@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smartproductive_app/Article_page/article_page.dart';
 import 'package:smartproductive_app/home_page/home_page.dart';
 
 class ProdBuddy extends StatefulWidget {
@@ -9,6 +10,15 @@ class ProdBuddy extends StatefulWidget {
 }
 
 class _ProdBuddyState extends State<ProdBuddy> {
+  TextEditingController _controller = TextEditingController(); // Controller to manage text input
+
+  void _sendMessage() {
+    String message = _controller.text.trim(); // Get input text and remove whitespace
+    if (message.isNotEmpty) {
+      print("User: $message"); // Placeholder for actual chatbot logic
+      _controller.clear(); // Clear input field after sending
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,12 +47,16 @@ class _ProdBuddyState extends State<ProdBuddy> {
                 leading: Icon(Icons.chat, size: 30),
                 title: Text('P - B U D D Y'),
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => ProdBuddy()));
+                  Navigator.pop(context);
                 },
               ),
               ListTile(
-                leading: Icon(Icons.task, size: 30),
-                title: Text('T A S K S'),
+                leading: Icon(Icons.article, size: 30),
+                title: Text("A R T I C L E S"),
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => ArticlePage()));
+                },
               ),
               ListTile(
                 leading: Icon(Icons.auto_graph_sharp, size: 30),
@@ -68,12 +82,44 @@ class _ProdBuddyState extends State<ProdBuddy> {
             ],
           ),
         ),
-        child: Center(
-          child: Text("This is Productive Buddy!!",
-            style: TextStyle(
-              fontSize: 25,
+        child: Column(
+          children: [
+            Expanded(child: Container()), // Placeholder for chat messages
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        cursorColor: Colors.white,
+                        controller: _controller,
+                        decoration: InputDecoration(
+                          hintText: "Type a message...",
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.white),
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    FloatingActionButton(
+                      onPressed: _sendMessage,
+                      child: Icon(Icons.send),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

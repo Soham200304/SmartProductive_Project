@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
+import 'package:smartproductive_app/Article_page/article_page.dart';
 import 'package:smartproductive_app/prod_buddy/prod_buddy.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:math';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -14,8 +16,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final user = FirebaseAuth.instance.currentUser!;
-  double _timerValue = 10; // Initial timer value in seconds
-  int _remainingTime = 10 * 60;
+  double _timerValue = 5; // Initial timer value in seconds
+  int _remainingTime = 5 * 60;
   Timer? _timer;
   bool _isRunning = false;
   String _selectedTag = "Study";
@@ -26,6 +28,14 @@ class _HomePageState extends State<HomePage> {
     {"name" : "Social", "color" : Colors.purple},
     {"name" : "Rest", "color" : Colors.red}
   ];
+  String _motivationText = "Start Working Today!";
+  final List<String> _motivationQuotes = [
+    "Keep pushing forward!",
+    "You can do this!",
+    "Focus on your goals!",
+    "Stay determined!",
+    "Hard work pays off!"
+  ];
 
   void _startTimer() {
     if (_timer != null) {
@@ -35,12 +45,16 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _remainingTime = (_timerValue * 60).toInt();
       _isRunning = true;
+      _motivationText = _motivationQuotes[Random().nextInt(_motivationQuotes.length)];
     });
 
     _timer = Timer.periodic(Duration(seconds: 01), (timer) {
       if (_remainingTime > 0) {
         setState(() {
           _remainingTime--;
+          if (_remainingTime % 60 == 0 && _remainingTime > 0) {
+            _motivationText = _motivationQuotes[Random().nextInt(_motivationQuotes.length)];
+          }
           //_timerValue = (_remainingTime / 60).clamp(1, 60); // Ensuring it remains in range
         });
       } else {
@@ -48,9 +62,30 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           _isRunning = false;
         });
+        _showCompletionDialog();
       }
     });
-  }// <-- Closing bracket added here
+  }//
+  void _showCompletionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Color(0xFF90E0EF),
+          title: Text("Congratulations!!"),
+          content: Text("You've focused for ${_timerValue.toInt()} minutes!"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("OK"),
+            )
+          ],
+        );
+      },
+    );
+  }
   void _showTagSelector() {
     showModalBottomSheet(
       context: context,
@@ -60,6 +95,10 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           child: Container(
             height: 300,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28), bottomRight: Radius.zero, bottomLeft: Radius.zero),
+              color: Color(0xFF90E0EF),
+            ),
             child: SingleChildScrollView(
               child: Column(
                 children: [
@@ -94,6 +133,7 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Color(0xFF90E0EF),
           title: Text("Add Task"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -194,8 +234,12 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.task, size: 30),
-                title: Text('T A S K S'),
+                leading: Icon(Icons.article, size: 30),
+                title: Text("A R T I C L E S"),
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => ArticlePage()));
+                },
               ),
               ListTile(
                 leading: Icon(Icons.auto_graph_sharp, size: 30),
@@ -225,6 +269,12 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text(
+                _motivationText,
+                style: GoogleFonts.actor(fontSize: 20, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 50),
               SleekCircularSlider(
                 initialValue: _timerValue,
                 min: 1,
@@ -296,17 +346,17 @@ class _HomePageState extends State<HomePage> {
               GestureDetector(
                 onTap: _isRunning ? null : _startTimer,
                 child: Container(
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(8),color: Color(0xFF52C7F6),boxShadow: [
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(28),color: Color(0xFF52C7F6),boxShadow: [
                     BoxShadow(
                     color: Colors.black.withOpacity(0.5),
-                    spreadRadius: 1,
-                    blurRadius:10,
-                    offset: Offset(2, 6), // changes position of shadow
+                    spreadRadius: 0,
+                    blurRadius:5,
+                    offset: Offset(3, 3), // changes position of shadow
                       ),
                     ],
                   ),
                   height: 50,
-                  width: 150,
+                  width: 135,
                   child: Center(
                       child: Text(
                           "Start",
