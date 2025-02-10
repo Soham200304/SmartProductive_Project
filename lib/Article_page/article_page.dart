@@ -10,104 +10,104 @@ class ArticlePage extends StatefulWidget {
 }
 
 class _ArticlePageState extends State<ArticlePage> {
-  List blogs = [];
+  List articles = [];
+
+  // Function to fetch articles from Dev.to API
+  Future<void> fetchArticles() async {
+    final response = await http.get(Uri.parse('https://dev.to/api/articles?username=flutter'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        articles = json.decode(response.body);
+      });
+    } else {
+      throw Exception('Failed to load articles');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    fetchBlogs();
-  }
-
-  Future<void> fetchBlogs() async {
-    final response = await http.get(Uri.parse('https://api.example.com/blogs'));
-    if (response.statusCode == 200) {
-      setState(() {
-        blogs = json.decode(response.body);
-      });
-    } else {
-      throw Exception('Failed to load blogs');
-    }
+    fetchArticles(); // Fetch data when the page loads
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF90E0EF),
-        title: Text('Blogs'),
+        title: Text('Dev.to Articles'),
+        backgroundColor: Colors.green[800],
       ),
-      body: Container(
-        decoration:BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF90E0EF), // Frosty blue
-              Color(0xFF00B4D8), // Light aqua blue            ],
-              Color(0xFF0096C7), // Blue lagoon
-            ],
-          ),
-        ),
-        child: blogs.isEmpty
-            ? Center(child: CircularProgressIndicator())
-            : ListView.builder(
-          itemCount: blogs.length,
-          itemBuilder: (context, index) {
-            return BlogCard(
-              title: blogs[index]['title'],
-              description: blogs[index]['description'],
-              imageUrl: blogs[index]['image_url'],
-            );
-          },
-        ),
+      body: articles.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+        padding: EdgeInsets.all(10),
+        itemCount: articles.length,
+        itemBuilder: (context, index) {
+          return NewsCard(
+            title: articles[index]['title'],
+            imageUrl: articles[index]['cover_image'] ?? 'https://via.placeholder.com/300x200',
+            date: articles[index]['published_at'].substring(0, 10),
+            status: 'Dev.to',
+          );
+        },
       ),
     );
   }
 }
 
-class BlogCard extends StatelessWidget {
+class NewsCard extends StatelessWidget {
   final String title;
-  final String description;
   final String imageUrl;
+  final String date;
+  final String status;
 
-  BlogCard({required this.title, required this.description, required this.imageUrl});
+  NewsCard({required this.title, required this.imageUrl, required this.date, required this.status});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(10),
-      elevation: 5,
+      margin: EdgeInsets.only(bottom: 15),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 3,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(date, style: TextStyle(fontSize: 14, color: Colors.black54)),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
           ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+            borderRadius: BorderRadius.circular(10),
             child: Image.network(
               imageUrl,
               width: double.infinity,
-              height: 200,
+              height: 150,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image, size: 200),
+              errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image, size: 150),
             ),
           ),
           Padding(
             padding: EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  description,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+            child: Text(
+              title,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ],

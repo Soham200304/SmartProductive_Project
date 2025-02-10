@@ -34,38 +34,45 @@ class _HomePageState extends State<HomePage> {
     "You can do this!",
     "Focus on your goals!",
     "Stay determined!",
-    "Hard work pays off!"
+    "Hard work pays off!",
+    "One step at a Time !",
+    "Stay focused and never give up!",
+    "You're doing great, keep going!"
   ];
 
-  void _startTimer() {
-    if (_timer != null) {
-      _timer!.cancel();
+  void _startOrCancelTimer() {
+    if (_isRunning) {
+      _timer?.cancel();
+      setState(() {
+        _isRunning = false;
+        _remainingTime = _timerValue.toInt() * 60;
+      });
+      _showCancelDialog();
+    } else {
+      setState(() {
+        _remainingTime = _timerValue.toInt() * 60;
+        _isRunning = true;
+      });
+
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+        if (_remainingTime > 0) {
+          setState(() {
+            _remainingTime--;
+            if (_remainingTime % 60 == 0) {
+              _selectedTag = _motivationText[Random().nextInt(_motivationText.length)];
+            }
+          });
+        } else {
+          timer.cancel();
+          setState(() {
+            _isRunning = false;
+          });
+          _showCompletionDialog();
+        }
+      });
     }
+  }
 
-    setState(() {
-      _remainingTime = (_timerValue * 60).toInt();
-      _isRunning = true;
-      _motivationText = _motivationQuotes[Random().nextInt(_motivationQuotes.length)];
-    });
-
-    _timer = Timer.periodic(Duration(seconds: 01), (timer) {
-      if (_remainingTime > 0) {
-        setState(() {
-          _remainingTime--;
-          if (_remainingTime % 60 == 0 && _remainingTime > 0) {
-            _motivationText = _motivationQuotes[Random().nextInt(_motivationQuotes.length)];
-          }
-          //_timerValue = (_remainingTime / 60).clamp(1, 60); // Ensuring it remains in range
-        });
-      } else {
-        timer.cancel();
-        setState(() {
-          _isRunning = false;
-        });
-        _showCompletionDialog();
-      }
-    });
-  }//
   void _showCompletionDialog() {
     showDialog(
       context: context,
@@ -86,6 +93,25 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+  void _showCancelDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color(0xFF52C7F6),
+        title: Text("You've stopped focusing"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+                "OK",
+              style: TextStyle(color: Colors.white, decoration: TextDecoration.underline, decorationColor: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showTagSelector() {
     showModalBottomSheet(
       context: context,
@@ -286,13 +312,13 @@ class _HomePageState extends State<HomePage> {
                   customWidths: CustomSliderWidths(progressBarWidth: 10, handlerSize: 12,trackWidth: 10),
                   customColors: CustomSliderColors(progressBarColor: Colors.blue[600], trackColor: Colors.blue[300]),
                 ),
-                onChange: (value) {
-                  if (!_isRunning) {
-                    setState(() {
-                      _timerValue = value.roundToDouble();
-                      _remainingTime = (_timerValue * 60).toInt();
-                    });
-                  }
+                onChange: _isRunning
+                 ? null
+                : (value) {
+                  setState(() {
+                    _timerValue = value.roundToDouble();
+                    _remainingTime = (_timerValue*60).toInt();
+                  });
                 },
                 innerWidget: (value) => Center(
                   child: Container(
@@ -344,24 +370,26 @@ class _HomePageState extends State<HomePage> {
 
               SizedBox(height: 40),
               GestureDetector(
-                onTap: _isRunning ? null : _startTimer,
+                onTap: _startOrCancelTimer,
                 child: Container(
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(28),color: Color(0xFF52C7F6),boxShadow: [
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(28),
+                    color: _isRunning ? Colors.red[100] : Color(0xFF52C7F6),
+                     boxShadow: [
                     BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    spreadRadius: 0,
-                    blurRadius:5,
-                    offset: Offset(3, 3), // changes position of shadow
-                      ),
-                    ],
+                      color: Colors.black.withOpacity(0.5),
+                      spreadRadius: 0,
+                      blurRadius:5,
+                      offset: Offset(3, 3), // changes position of shadow
+                    ),
+                  ],
                   ),
                   height: 50,
                   width: 135,
                   child: Center(
-                      child: Text(
-                          "Start",
-                        style: GoogleFonts.acme(fontSize: 25, color: Colors.black),
-                      )
+                    child: Text(
+                      _isRunning ? "Cancel" : "Start",
+                      style: GoogleFonts.acme(fontSize: 25, color: Colors.black),
+                    ),
                   ),
                 ),
               ),
