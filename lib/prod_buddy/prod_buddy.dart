@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:smartproductive_app/Article_page/article_page.dart';
 import 'package:smartproductive_app/home_page/home_page.dart';
 import 'package:groq/groq.dart';
@@ -24,8 +25,8 @@ class _ProdBuddyState extends State<ProdBuddy> {
     final _groq = Groq(apiKey:'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', model: "llama-3.3-70b-versatile");
     _groq.startChat();
     _groq.setCustomInstructionsWith(
-        "You are an helpful Task Suggesting AI Assistant where user inputs their current moods and feelings. Your name is Motivo."+
-            " Based on that you need to suggest some tasks and activities to do according to their mood. Suggest minimum 8 tasks to the user." +
+        "You are an helpful Task Suggesting AI Assistant where user inputs their current moods and feelings. The moods and feelings are 'Happy', 'Sad', 'Fear', 'Disguise', 'Anger', 'Surprise', 'Exhaust', 'Confuse'. Your name is Motivo."+
+            " Based on that you need to suggest some tasks and activities to do according to their mood. Suggest minimum 8 tasks to the user. Try not to give same responses for all set of moods and feelings" +
             "The format should have name of the task and following with some description about that task." +
             "If user does not specify their moods or user greets you, you greet them in return asking them to input their mood."
     );
@@ -49,8 +50,8 @@ class _ProdBuddyState extends State<ProdBuddy> {
       // Add the bot's response to the messages list
       Future.delayed(Duration(seconds: 2), () {
         setState(() {
-          //isLoading = false; // Hide loading animation
-          messages.add({"text": "Here is your productivity tip! Stay focused and take breaks.", "isUser": false}); // Sample bot response
+          isLoading = false; // Hide loading animation
+          messages.add({"text": botResponse, "isUser": false}); // Sample bot response
         });
         _scrollToBottom();
       });
@@ -89,8 +90,8 @@ class _ProdBuddyState extends State<ProdBuddy> {
         elevation: 0,
         title: Text(
           textAlign: TextAlign.center,
-          "                Motivo",
-          style: GoogleFonts.alike(fontSize: 20, fontWeight: FontWeight.bold),
+          "Motivo",
+          style: GoogleFonts.alike(fontSize: 21, fontWeight: FontWeight.bold),
         ),
       ),
       drawer: Drawer(
@@ -107,7 +108,7 @@ class _ProdBuddyState extends State<ProdBuddy> {
                 leading: Icon(Icons.home, size: 30),
                 title: Text('H O M E'),
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomePage()));
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
                 },
               ),
               ListTile(
@@ -153,7 +154,7 @@ class _ProdBuddyState extends State<ProdBuddy> {
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
-                itemCount: messages.length,
+                itemCount: messages.length + (isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == messages.length && isLoading) {
                     return Align(
@@ -163,19 +164,8 @@ class _ProdBuddyState extends State<ProdBuddy> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text("Bot is typing..."),
                             SizedBox(width: 5),
-                            SizedBox(
-                              width: 40,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  _buildDot(),
-                                  _buildDot(delay: 200),
-                                  _buildDot(delay: 400),
-                                ],
-                              ),
-                            ),
+                      _buildLoadingAnimation(),
                           ],
                         ),
                       ),
@@ -242,28 +232,10 @@ class _ProdBuddyState extends State<ProdBuddy> {
       ),
     );
   }
-  Widget _buildDot({int delay = 0}) {
-    return TweenAnimationBuilder(
-      tween: Tween<double>(begin: 0, end: 1),
-      duration: Duration(milliseconds: 800),
-      curve: Curves.easeInOut,
-      builder: (context, double value, child) {
-        return Opacity(
-          opacity: (value * 2 - 1).abs(),
-          child: child,
-        );
-      },
-      onEnd: () {
-        setState(() {});
-      },
-      child: Container(
-        width: 8,
-        height: 8,
-        decoration: BoxDecoration(
-          color: Colors.grey,
-          shape: BoxShape.circle,
-        ),
-      ),
+  Widget _buildLoadingAnimation() {
+    return LoadingAnimationWidget.waveDots(
+      color: Colors.white,
+      size: 35,
     );
   }
 }

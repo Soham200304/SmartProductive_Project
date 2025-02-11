@@ -16,8 +16,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final user = FirebaseAuth.instance.currentUser!;
-  double _timerValue = 5; // Initial timer value in seconds
-  int _remainingTime = 5 * 60;
+  double _timerValue = 10; // Initial timer value in seconds
+  int _remainingTime = 10 * 60;
   Timer? _timer;
   bool _isRunning = false;
   String _selectedTag = "Study";
@@ -39,6 +39,8 @@ class _HomePageState extends State<HomePage> {
     "Stay focused and never give up!",
     "You're doing great, keep going!"
   ];
+
+  List<double> _checkpoints = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
   void _startOrCancelTimer() {
     if (_isRunning) {
@@ -125,25 +127,27 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28), bottomRight: Radius.zero, bottomLeft: Radius.zero),
               color: Color(0xFF90E0EF),
             ),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  ..._customTasks.map((task) => ListTile(
-                    leading: CircleAvatar(backgroundColor: task["color"], radius: 5,),
-                    title: Text(
-                      task["name"],
-                      style: TextStyle(
-                        fontSize: 20
+            child: SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    ..._customTasks.map((task) => ListTile(
+                      leading: CircleAvatar(backgroundColor: task["color"], radius: 5,),
+                      title: Text(
+                        task["name"],
+                        style: TextStyle(
+                          fontSize: 20
+                        ),
                       ),
+                      onTap: () => _setTag(task["name"], task["color"]),
+                    )),
+                    ListTile(
+                      leading: Icon(Icons.add),
+                      title: Text("Add Task"),
+                      onTap: _showAddTaskDialog,
                     ),
-                    onTap: () => _setTag(task["name"], task["color"]),
-                  )),
-                  ListTile(
-                    leading: Icon(Icons.add),
-                    title: Text("Add Task"),
-                    onTap: _showAddTaskDialog,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -300,7 +304,7 @@ class _HomePageState extends State<HomePage> {
                 style: GoogleFonts.actor(fontSize: 20, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 50),
+              SizedBox(height: 40),
               SleekCircularSlider(
                 initialValue: _timerValue,
                 min: 1,
@@ -337,7 +341,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              SizedBox(height: 49),
+              SizedBox(height: 35),
               GestureDetector(
                 onTap: _showTagSelector,
                 child: Container(
@@ -368,7 +372,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              SizedBox(height: 40),
+              SizedBox(height: 30),
               GestureDetector(
                 onTap: _startOrCancelTimer,
                 child: Container(
@@ -387,7 +391,7 @@ class _HomePageState extends State<HomePage> {
                   width: 135,
                   child: Center(
                     child: Text(
-                      _isRunning ? "Cancel" : "Start",
+                      _isRunning ? "Stop" : "Start",
                       style: GoogleFonts.acme(fontSize: 25, color: Colors.black),
                     ),
                   ),
