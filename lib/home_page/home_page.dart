@@ -3,9 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:smartproductive_app/Article_page/article_page.dart';
+import 'package:smartproductive_app/Second_page/second_page.dart';
 import 'package:smartproductive_app/prod_buddy/prod_buddy.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
+import 'package:audioplayers/audioplayers.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -20,6 +22,9 @@ class _HomePageState extends State<HomePage> {
   int _remainingTime = 10 * 60;
   Timer? _timer;
   bool _isRunning = false;
+  bool _isMusicPlaying = false;
+  bool _isSecondPage = false;
+  final AudioPlayer _audioPlayer = AudioPlayer();
   String _selectedTag = "Study";
   Color _selectedTagColor = Colors.blue;
   List<Map<String, dynamic>> _customTasks = [
@@ -40,7 +45,21 @@ class _HomePageState extends State<HomePage> {
     "You're doing great, keep going!"
   ];
 
-  List<double> _checkpoints = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+  final String cloudinaryAudioUrl = "https://res.cloudinary.com/djhtg9chy/video/upload/v1739479052/focus_music_rbdlug.mp3";
+
+  List<double> _checkpoints = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+
+  void _togglePage(bool value) {
+    setState(() {
+      _isSecondPage = value;
+    });
+    if (value) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => SecondPage()),
+      );
+    }
+  }
 
   void _startOrCancelTimer() {
     if (_isRunning) {
@@ -50,10 +69,12 @@ class _HomePageState extends State<HomePage> {
         _remainingTime = _timerValue.toInt() * 60;
       });
       _showCancelDialog();
+      _stopMusic();
     } else {
       setState(() {
         _remainingTime = _timerValue.toInt() * 60;
         _isRunning = true;
+        _motivationText = _motivationQuotes[Random().nextInt(_motivationQuotes.length)];
       });
 
       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -61,7 +82,7 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             _remainingTime--;
             if (_remainingTime % 60 == 0) {
-              _selectedTag = _motivationText[Random().nextInt(_motivationText.length)];
+              _motivationText = _motivationQuotes[Random().nextInt(_motivationQuotes.length)];
             }
           });
         } else {
@@ -70,10 +91,40 @@ class _HomePageState extends State<HomePage> {
             _isRunning = false;
           });
           _showCompletionDialog();
+          _stopMusic();
         }
       });
     }
   }
+
+  void _toggleMusic() {
+    if (_isMusicPlaying) {
+      _stopMusic();
+    } else {
+      _playMusic();
+    }
+  }
+
+  void _playMusic() async {
+    try {
+      await _audioPlayer.play(UrlSource(cloudinaryAudioUrl));
+
+      setState(() {
+        _isMusicPlaying = true;
+      });
+    } catch (e) {
+      print("Error playing music: $e");
+    }
+  }
+
+
+  void _stopMusic() async {
+    await _audioPlayer.stop();
+    setState(() {
+      _isMusicPlaying = false;
+    });
+  }
+
 
   void _showCompletionDialog() {
     showDialog(
@@ -232,6 +283,20 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Color(0xFF90E0EF),
         actions: [
+          Align(
+            alignment: Alignment.center,
+            child: Center(
+              child: Switch(
+                value: _isSecondPage,
+                onChanged: _togglePage,
+              ),
+            ),
+          ),
+          if (_isRunning)
+            IconButton(
+              onPressed: _toggleMusic,
+              icon: Icon(_isMusicPlaying ? Icons.music_off : Icons.music_note, size: 28),
+            ),
           IconButton(
             onPressed: signuserOut,
             icon: Icon(Icons.logout, size: 28),
@@ -307,8 +372,8 @@ class _HomePageState extends State<HomePage> {
               SizedBox(height: 40),
               SleekCircularSlider(
                 initialValue: _timerValue,
-                min: 1,
-                max: 60,
+                min: _checkpoints.first,
+                max: _checkpoints.last,
                 appearance: CircularSliderAppearance(
                   size: 250,
                   startAngle: 270,
@@ -319,9 +384,10 @@ class _HomePageState extends State<HomePage> {
                 onChange: _isRunning
                  ? null
                 : (value) {
+                  double closestCheckpoint = _checkpoints.reduce((a, b) => (value - a).abs() < (value - b).abs() ? a : b);
                   setState(() {
-                    _timerValue = value.roundToDouble();
-                    _remainingTime = (_timerValue*60).toInt();
+                    _timerValue = closestCheckpoint;
+                    _remainingTime = closestCheckpoint.toInt() * 60;
                   });
                 },
                 innerWidget: (value) => Center(
@@ -407,6 +473,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _timer?.cancel();
+    _audioPlayer.dispose();
     super.dispose();
   }
 }

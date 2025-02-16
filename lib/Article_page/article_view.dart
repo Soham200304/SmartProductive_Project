@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class ArticleWebView extends StatefulWidget {
@@ -14,37 +15,62 @@ class ArticleWebView extends StatefulWidget {
 
 class _ArticleWebViewState extends State<ArticleWebView> {
   late final WebViewController _controller;
+  bool _isLoading = true; // Track loading state
 
   @override
   void initState() {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse(widget.url));  // Load the article link
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (url) {
+            setState(() {
+              _isLoading = false; // Hide loading animation when page loads
+            });
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(widget.url)); // Load the article link
+  }
+
+  Widget _buildLoadingAnimation() {
+    return Center(
+      child: LoadingAnimationWidget.inkDrop(
+        color: Colors.white,
+        size: 50,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(
-        widget.title,
-        style: GoogleFonts.alike(fontSize: 24),
+      appBar: AppBar(
+        title: Text(
+          widget.title,
+          style: GoogleFonts.alike(fontSize: 24),
+        ),
+        backgroundColor: Color(0xFF90E0EF),
       ),
-      backgroundColor: Color(0xFF90E0EF),
-    ),
-      body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF90E0EF), // Frosty blue
-                Color(0xFF00B4D8), // Light aqua blue
-                Color(0xFF0096C7), // Blue lagoon
-              ],
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFF90E0EF), // Frosty blue
+                  Color(0xFF00B4D8), // Light aqua blue
+                  Color(0xFF0096C7), // Blue lagoon
+                ],
+              ),
             ),
+            child: WebViewWidget(controller: _controller),
           ),
-          child: WebViewWidget(controller: _controller)
+          if (_isLoading) _buildLoadingAnimation(), // Show animation while loading
+        ],
       ),
     );
   }

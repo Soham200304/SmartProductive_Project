@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:smartproductive_app/Article_page/article_view.dart';
 import 'package:smartproductive_app/home_page/home_page.dart';
 import 'package:smartproductive_app/prod_buddy/prod_buddy.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class ArticlePage extends StatefulWidget {
   const ArticlePage({super.key});
