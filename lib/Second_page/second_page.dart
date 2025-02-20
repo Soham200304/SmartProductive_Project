@@ -29,10 +29,10 @@ class _SecondPageState extends State<SecondPage> {
       appBar: AppBar(
         backgroundColor: Color(0xFF90E0EF),
         actions: [
-          Switch(
-            value: _isSecondPage,
-            onChanged: _togglePage,
-          ),
+          // Switch(
+          //   value: _isSecondPage,
+          //   onChanged: _togglePage,
+          // ),
         ],
       ),
       body: Container(
@@ -47,7 +47,7 @@ class _SecondPageState extends State<SecondPage> {
             ],
           ),
         ),
-
+        child: Center(child: Text('Hello')),
       ),
     );
   }

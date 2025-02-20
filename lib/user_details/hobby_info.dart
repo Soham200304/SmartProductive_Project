@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:smartproductive_app/home_page/home_page.dart';
 
 class HobbyInfo extends StatefulWidget {
@@ -37,6 +38,32 @@ class _HobbyInfoState extends State<HobbyInfo> {
   };
 
   final List<String> selectedHobbies = [];
+
+  void _hobbyvalidation() async{
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent user from dismissing it manually
+      builder: (context) => Center(
+        child: LoadingAnimationWidget.inkDrop(
+          color: Colors.white,
+          size: 50,
+        ),
+      ),
+    );
+
+    // Simulate delay (optional, remove if not needed)
+    await Future.delayed(Duration(seconds: 2));
+
+    // Dismiss loading dialog
+    Navigator.pop(context);
+
+    // Navigate to HobbyInfo Page
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+          (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +142,7 @@ class _HobbyInfoState extends State<HobbyInfo> {
               ),
               GestureDetector(
                 onTap: () {
+                  LoadingAnimationWidget.inkDrop(color: Colors.white, size: 50);
                   if (selectedHobbies.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -123,11 +151,7 @@ class _HobbyInfoState extends State<HobbyInfo> {
                       ),
                     );
                   } else {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
-                          (route) => false,
-                    );
+                    _hobbyvalidation();
                   }
                 },
                 child: Align(

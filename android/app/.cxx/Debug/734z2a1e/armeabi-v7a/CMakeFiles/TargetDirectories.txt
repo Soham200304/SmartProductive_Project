@@ -1,0 +1,2 @@
+C:/Users/SOHAM NAIK/StudioProjects/smartProductive_App/android/app/.cxx/Debug/734z2a1e/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/SOHAM NAIK/StudioProjects/smartProductive_App/android/app/.cxx/Debug/734z2a1e/armeabi-v7a/CMakeFiles/rebuild_cache.dir

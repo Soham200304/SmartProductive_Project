@@ -6,6 +6,7 @@ import 'package:smartproductive_app/Article_page/article_view.dart';
 import 'package:smartproductive_app/home_page/home_page.dart';
 import 'package:smartproductive_app/prod_buddy/prod_buddy.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:smartproductive_app/task_page/task_pages.dart';
 
 class ArticlePage extends StatefulWidget {
   const ArticlePage({super.key});
@@ -41,15 +42,15 @@ class _ArticlePageState extends State<ArticlePage> {
           'Productivity Articles',
           style: GoogleFonts.alike(fontSize: 24),
         ),
-        backgroundColor: Color(0xFF90E0EF),
+        backgroundColor: Color(0xFFB2F5B2) // Very Soft Pastel Green,
       ),
       drawer: Drawer(
         child: Container(
-          color: Color(0xFF00B4D8),
+          color: Color(0xFFB2F5B2), // Very Soft Pastel Green
           child: ListView(
             children: [
               DrawerHeader(
-                //decoration: BoxDecoration(color: Color(0xFF00B4D8)),
+                decoration: BoxDecoration(color: Color(0xFF90EE90)),
                 child: Center(child: Image.asset('lib/images/sp_final.png')),
               ),
               SizedBox(height: 10),
@@ -70,10 +71,18 @@ class _ArticlePageState extends State<ArticlePage> {
                 },
               ),
               ListTile(
+                leading: Icon(Icons.task, size: 30),
+                title: Text("T A S K S"),
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => TasksPage()));
+                },
+              ),
+              ListTile(
                 leading: Icon(Icons.article, size: 30),
                 title: Text("A R T I C L E S"),
                 onTap: () {
-                  Navigator.pop(context);// Close drawer instead of pushing a new HomePage
+                  Navigator.pop(context);
                 },
               ),
               ListTile(
@@ -88,15 +97,16 @@ class _ArticlePageState extends State<ArticlePage> {
           ),
         ),
       ),
+
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF90E0EF), // Frosty blue
-              Color(0xFF00B4D8), // Light aqua blue
-              Color(0xFF0096C7), // Blue lagoon
+              Color(0xFFD0FFD0), // Gentle Minty Green
+              Color(0xFFB2F5B2), // Very Soft Pastel Green
+              Color(0xFF90EE90), // Soft Light Green
             ],
           ),
         ),

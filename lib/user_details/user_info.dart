@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:smartproductive_app/user_details/hobby_info.dart';
 
 class UserInfo extends StatefulWidget {
@@ -19,25 +20,41 @@ class _UserInfoState extends State<UserInfo> {
     'Employee', 'Student', 'Worker', 'Doctor', 'Engineer', 'Farmer'
   ];
 
-  void _validateAndProceed() {
+  void _validateAndProceed() async {
     if (nameController.text.isEmpty) {
-      _showSnackBar("Please enter your name.");
+      _showSnackBar("Please enter your Username.");
       return;
     }
     if (ageController.text.isEmpty) {
-      _showSnackBar("Please enter your age.");
+      _showSnackBar("Please enter your Age.");
       return;
     }
     if (selectedOccupation == null) {
-      _showSnackBar("Please select an occupation.");
+      _showSnackBar("Please select an Occupation.");
       return;
     }
 
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent user from dismissing it manually
+      builder: (context) => Center(
+        child: LoadingAnimationWidget.inkDrop(
+          color: Colors.white,
+          size: 50,
+        ),
+      ),
+    );
+
+    // Simulate delay (optional, remove if not needed)
+    await Future.delayed(Duration(seconds: 2));
+
+    // Dismiss loading dialog
+    Navigator.pop(context);
+
+    // Navigate to HobbyInfo Page
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => HobbyInfo(),
-      ),
+      MaterialPageRoute(builder: (context) => HobbyInfo()),
     );
   }
 
@@ -96,7 +113,7 @@ class _UserInfoState extends State<UserInfo> {
                 TextField(
                   controller: nameController,
                   decoration: InputDecoration(
-                    labelText: "Set Your Username",
+                    hintText: "Set Your Username",
                     labelStyle: TextStyle(color: Colors.black),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
@@ -116,7 +133,7 @@ class _UserInfoState extends State<UserInfo> {
                 TextField(
                   controller: ageController,
                   decoration: InputDecoration(
-                    labelText: "What is your Age ?",
+                    hintText: "What is your Age ?",
                     labelStyle: TextStyle(color: Colors.black),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
@@ -135,7 +152,7 @@ class _UserInfoState extends State<UserInfo> {
                 //Occupation
                 DropdownButtonFormField<String>(
                   decoration: InputDecoration(
-                    labelText: "What's your Occupation ?",
+                    hintText: "What's your Occupation ?",
                     labelStyle: TextStyle(color: Colors.black),
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),

@@ -8,6 +8,7 @@ import 'package:smartproductive_app/prod_buddy/prod_buddy.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:smartproductive_app/task_page/task_pages.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -27,12 +28,14 @@ class _HomePageState extends State<HomePage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   String _selectedTag = "Study";
   Color _selectedTagColor = Colors.blue;
+
   List<Map<String, dynamic>> _customTasks = [
     {"name" : "Study", "color" : Colors.blue},
     {"name" : "Work", "color" : Colors.green},
     {"name" : "Social", "color" : Colors.purple},
     {"name" : "Rest", "color" : Colors.red}
   ];
+
   String _motivationText = "Start Working Today!";
   final List<String> _motivationQuotes = [
     "Keep pushing forward!",
@@ -48,18 +51,6 @@ class _HomePageState extends State<HomePage> {
   final String cloudinaryAudioUrl = "https://res.cloudinary.com/djhtg9chy/video/upload/v1739479052/focus_music_rbdlug.mp3";
 
   List<double> _checkpoints = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
-
-  void _togglePage(bool value) {
-    setState(() {
-      _isSecondPage = value;
-    });
-    if (value) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SecondPage()),
-      );
-    }
-  }
 
   void _startOrCancelTimer() {
     if (_isRunning) {
@@ -126,26 +117,26 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-  void _showCompletionDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Color(0xFF90E0EF),
-          title: Text("Congratulations!!"),
-          content: Text("You've focused for ${_timerValue.toInt()} minutes!"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("OK"),
-            )
-          ],
-        );
-      },
-    );
-  }
+  // void _showCompletionDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         backgroundColor: Color(0xFF90E0EF),
+  //         title: Text("Congratulations!!"),
+  //         content: Text("You've focused for ${_timerValue.toInt()} minutes!"),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.pop(context);
+  //             },
+  //             child: Text("OK"),
+  //           )
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
   void _showCancelDialog() {
     showDialog(
       context: context,
@@ -277,21 +268,178 @@ class _HomePageState extends State<HomePage> {
     FirebaseAuth.instance.signOut();
   }
 
+  void _showCompletionDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Color(0xFF90E0EF),
+          title: Text("Congratulations!!"),
+          content: Text("You've focused for ${_timerValue.toInt()} minutes!"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _showBreakDialog(); // Ask for break
+              },
+              child: Text("OK"),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  void _showBreakDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Color(0xFF90E0EF),
+          title: Text("Select Break Duration"),
+          content: Wrap(
+            spacing: 10,
+            children: List.generate(10, (index) {
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _timerValue = index + 1; // Set break duration
+                    _remainingTime = _timerValue.toInt() * 60;
+                    _isRunning = true;
+                  });
+                  Navigator.pop(context);
+                  _startBreakTimer();
+                },
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Text("${index + 1}", style: TextStyle(color: Colors.white)),
+                ),
+              );
+            }),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _showCancelBreakDialog();
+              },
+              child: Text("Cancel Break"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showCancelBreakDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Color(0xFF52C7F6),
+          title: Text("Are you sure?"),
+          content: Text("Do you want to skip the break and continue?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _showBreakDialog(); // Redirect back to break selection
+              },
+              child: Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _isRunning = true;
+                  _remainingTime = _timerValue.toInt() * 60; // Resume last focus timer
+                });
+                Navigator.pop(context);
+              },
+              child: Text("Yes"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _startBreakTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingTime > 0) {
+        setState(() {
+          _remainingTime--;
+        });
+      } else {
+        timer.cancel();
+        setState(() {
+          _isRunning = false;
+        });
+        _showPostBreakDialog();
+      }
+    });
+  }
+
+  void _showPostBreakDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Color(0xFF90E0EF),
+          title: Text("Break Over"),
+          content: Text("Would you like to start another focus session?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _startOrCancelTimer(); // Restart focus session
+              },
+              child: Text("Yes"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("No"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _navigateToTasksPage() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TasksPage(
+          // onTaskSelected: (taskName, taskColor) {
+          //   setState(() {
+          //     _selectedTag = taskName;
+          //     _selectedTagColor = taskColor;
+          //   });
+          // },
+        ),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF90E0EF),
+        backgroundColor: Color(0xFFB2F5B2), // Very Soft Pastel Green
         actions: [
-          Align(
-            alignment: Alignment.center,
-            child: Center(
-              child: Switch(
-                value: _isSecondPage,
-                onChanged: _togglePage,
-              ),
-            ),
-          ),
           if (_isRunning)
             IconButton(
               onPressed: _toggleMusic,
@@ -305,11 +453,11 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: Drawer(
         child: Container(
-          color: Color(0xFF00B4D8),
+          color: Color(0xFFB2F5B2), // Very Soft Pastel Green
           child: ListView(
             children: [
               DrawerHeader(
-                decoration: BoxDecoration(color: Color(0xFF00B4D8)),
+                decoration: BoxDecoration(color: Color(0xFF90EE90)),
                 child: Center(child: Image.asset('lib/images/sp_final.png')),
               ),
               SizedBox(height: 10),
@@ -326,6 +474,14 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (context) => ProdBuddy()));
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.task, size: 30),
+                title: Text("T A S K S"),
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => TasksPage()));
                 },
               ),
               ListTile(
@@ -348,18 +504,20 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+      
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF90E0EF), // Frosty blue
-              Color(0xFF00B4D8), // Light aqua blue
-              Color(0xFF0096C7), // Blue lagoon
+              Color(0xFFD0FFD0), // Gentle Minty Green
+              Color(0xFFB2F5B2), // Very Soft Pastel Green
+              Color(0xFF90EE90), // Soft Light Green
             ],
           ),
         ),
+
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -371,7 +529,7 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 40),
               SleekCircularSlider(
-                initialValue: _timerValue,
+                initialValue: _timerValue.clamp(_checkpoints.first, _checkpoints.last), // Ensure value is valid
                 min: _checkpoints.first,
                 max: _checkpoints.last,
                 appearance: CircularSliderAppearance(
@@ -379,14 +537,14 @@ class _HomePageState extends State<HomePage> {
                   startAngle: 270,
                   angleRange: 360,
                   customWidths: CustomSliderWidths(progressBarWidth: 10, handlerSize: 12,trackWidth: 10),
-                  customColors: CustomSliderColors(progressBarColor: Colors.blue[600], trackColor: Colors.blue[300]),
+                  customColors: CustomSliderColors(progressBarColor: Color(0xFF90EE90), trackColor: Color(0xFF90EE90)),
                 ),
                 onChange: _isRunning
                  ? null
                 : (value) {
                   double closestCheckpoint = _checkpoints.reduce((a, b) => (value - a).abs() < (value - b).abs() ? a : b);
                   setState(() {
-                    _timerValue = closestCheckpoint;
+                    _timerValue = _checkpoints.reduce((a, b) => (a - 10).abs() < (b - 10).abs() ? a : b);
                     _remainingTime = closestCheckpoint.toInt() * 60;
                   });
                 },
@@ -409,17 +567,17 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 35),
               GestureDetector(
-                onTap: _showTagSelector,
+                onTap: _navigateToTasksPage,
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: BoxDecoration(
-                    color: Color(0x4AFDFDFD),
+                    border: Border.all(color: Color(0xFF5AAB61)),
+                    color: Color(0x4AD1CFCF),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Circular color tag
                       Container(
                         width: 15,
                         height: 15,
@@ -428,10 +586,10 @@ class _HomePageState extends State<HomePage> {
                           shape: BoxShape.circle,
                         ),
                       ),
-                      SizedBox(width: 10), // Space between tag and text
+                      SizedBox(width: 10),
                       Text(
                         _selectedTag,
-                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -443,7 +601,8 @@ class _HomePageState extends State<HomePage> {
                 onTap: _startOrCancelTimer,
                 child: Container(
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(28),
-                    color: _isRunning ? Colors.red[100] : Color(0xFF52C7F6),
+                    color: _isRunning ? Colors.red[100] : Color(0xFF90EE90) // Soft Light Green
+                    ,
                      boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.5),
