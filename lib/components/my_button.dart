@@ -18,8 +18,8 @@ class MyButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF90E0EF), // Frosty blue            ],
-              Color(0xFF00B4D8), // Light aqua blue
+              Color(0xFF4FDB90),
+              Color(0xFF4FDB60),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,

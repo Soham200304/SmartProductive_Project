@@ -1,0 +1,304 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:smartproductive_app/drawer_page/drawer.dart';
+
+class ReportsPage extends StatefulWidget {
+  @override
+  _ReportsPageState createState() => _ReportsPageState();
+}
+
+class _ReportsPageState extends State<ReportsPage> {
+  Map<DateTime, int> _focusMinutesPerDay = {};
+  List<Map<String, dynamic>> _taskLogs = [];
+  DateTime _selectedStartDate = DateTime.now().subtract(Duration(days: 7));
+  DateTime _selectedEndDate = DateTime.now();
+  String _selectedFilter = 'Week'; // Default filter
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchReportData();
+  }
+  ///Function to filter tasks based on selected time range
+  List<Map<String, dynamic>> _getFilteredLogs() {
+    DateTime now = DateTime.now();
+    DateTime startFilterDate;
+
+    if (_selectedFilter == "Day") {
+      startFilterDate = DateTime(now.year, now.month, now.day);
+    } else if (_selectedFilter == "Week") {
+      startFilterDate = now.subtract(Duration(days: 7));
+    } else if (_selectedFilter == "Month") {
+      startFilterDate = DateTime(now.year, now.month, 1);
+    } else {
+      startFilterDate = DateTime(now.year, 1, 1);
+    }
+
+    return _taskLogs
+        .where((task) => task['date'].isAfter(startFilterDate))
+        .toList();
+  }
+
+
+  Future<void> _fetchReportData() async {
+    QuerySnapshot timerSnapshot = await FirebaseFirestore.instance.collection('timerCompletions').get();
+
+    Map<DateTime, int> focusData = {};
+    List<Map<String, dynamic>> taskLogs = [];
+
+    for (var doc in timerSnapshot.docs) {
+      var data = doc.data() as Map<String, dynamic>;
+
+      // Check for null timestamps
+      if (data['completedAt'] != null && data['taskName'] != null && data['timer'] != null) {
+        DateTime date = (data['completedAt'] as Timestamp).toDate();
+        DateTime normalizedDate = DateTime(date.year, date.month, date.day);
+
+        focusData[normalizedDate] = (focusData[normalizedDate] ?? 0) + (data['timer'] as num).toInt();
+
+        taskLogs.add({
+          'taskName': data['taskName'],
+          'date': date,
+          'minutesFocused': (data['timer'] as num).toInt(),
+        });
+      }
+    }
+
+    setState(() {
+      _focusMinutesPerDay = focusData;
+      _taskLogs = taskLogs;
+    });
+  }
+
+  /// Date Picker for filtering reports
+  Future<void> _selectDateRange(BuildContext context) async {
+    DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2024, 1, 1),
+      lastDate: DateTime.now(),
+      initialDateRange: DateTimeRange(start: _selectedStartDate, end: _selectedEndDate),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedStartDate = picked.start;
+        _selectedEndDate = picked.end;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Reports", style: TextStyle(fontWeight: FontWeight.bold)),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.date_range),
+            onPressed: () => _selectDateRange(context),
+          ),
+        ],
+      ),
+      drawer: CustomDrawer(),
+      body: SingleChildScrollView(
+        child: Container(
+          color: Color(0xFFD0FFD0),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildSummaryCard(),
+                SizedBox(height: 20),
+                _buildBarChart(),
+                SizedBox(height: 20),
+                _buildTaskTimeline(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 📊 Bar Chart for Daily Productivity
+  Widget _buildBarChart() {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text("Daily Focus Minutes",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Container(
+              height: 250, // Increased height for better visibility
+              child: BarChart(
+                BarChartData(
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        return BarTooltipItem(
+                          "${_focusMinutesPerDay.keys.elementAt(group.x).day}/${_focusMinutesPerDay.keys.elementAt(group.x).month}\n${rod.toY.toInt()} min",
+                          TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        );
+                      },
+                    ),
+                  ),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          return Text('${value.toInt()} min',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold));
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (double value, TitleMeta meta) {
+                          DateTime date = _focusMinutesPerDay.keys.elementAt(value.toInt());
+                          return Padding(
+                            padding: EdgeInsets.only(top: 8.0),
+                            child: Text("${date.day}/${date.month}",
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  gridData: FlGridData(show: false),
+                  borderData: FlBorderData(
+                    border: Border.all(color: Colors.transparent),
+                  ),
+                  barGroups: _focusMinutesPerDay.entries.map((entry) {
+                    return BarChartGroupData(
+                      x: _focusMinutesPerDay.keys.toList().indexOf(entry.key),
+                      barRods: [
+                        BarChartRodData(
+                          toY: entry.value.toDouble(),
+                          width: 18, // Adjust width for a clean look
+                          borderRadius: BorderRadius.circular(6),
+                          gradient: LinearGradient(
+                            colors: [Colors.blue.shade400, Colors.purpleAccent],
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 📅 Task Timeline Log
+  Widget _buildTaskTimeline() {
+    List<Map<String, dynamic>> filteredLogs = _getFilteredLogs();
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            /// 🔽 Dropdown Filter
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Productivity Timeline",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                DropdownButton<String>(
+                  value: _selectedFilter,
+                  items: ["Day", "Week", "Month", "Year"]
+                      .map((filter) => DropdownMenuItem(
+                    value: filter,
+                    child: Text(filter),
+                  ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedFilter = value!;
+                    });
+                  },
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+
+            /// 🔹 Timeline List
+            filteredLogs.isEmpty
+                ? Text("No tasks available for selected period",
+                style: TextStyle(color: Colors.grey))
+                : ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: filteredLogs.length,
+              itemBuilder: (context, index) {
+                var task = filteredLogs[index];
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 6),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  child: ListTile(
+                    leading: Icon(Icons.task_alt, color: Colors.green),
+                    title: Text(task['taskName'],
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                      "${DateFormat('dd MMM yyyy, hh:mm a').format(task['date'])} - ${task['minutesFocused']} min",
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 🔥 Summary Card for Total Productivity (Filtered)
+  Widget _buildSummaryCard() {
+    List<Map<String, dynamic>> filteredLogs = _getFilteredLogs();
+
+    // Ensure 'minutesFocused' is not null and safely cast to int
+    int totalMinutes = filteredLogs.fold(0, (sum, task) {
+      return sum + ((task['minutesFocused'] ?? 0) as int);
+    });
+    return Card(
+      color: Colors.blueAccent[400],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text(
+              "Total Focus Time",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            SizedBox(height: 10),
+            Text(
+              "$totalMinutes min",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

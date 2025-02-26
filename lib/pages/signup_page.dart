@@ -80,14 +80,13 @@ class _SignupPage extends State<SignupPage> {
     return Scaffold(
       //backgroundColor: Colors.blue[300],
       body: Container(
-        decoration:BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF90E0EF), // Frosty blue
-              Color(0xFF00B4D8), // Light aqua blue            ],
-              Color(0xFF0096C7), // Blue lagoon
+              Color(0xFFD0FFD0), // Gentle Minty Green
+              Color(0xFF90EE90), // Soft Light Green
             ],
           ),
         ),
@@ -151,52 +150,7 @@ class _SignupPage extends State<SignupPage> {
                       text:"Sign Up",
                       onTap: signUserUp,
                     ),
-                
-                    const SizedBox(height: 5),
-                    //or continue with
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                      // child: Row(
-                      //   children: [
-                      //     Expanded(
-                      //       child: Divider(
-                      //         thickness: 2.5,
-                      //         color: Colors.blue[900],
-                      //       ),
-                      //     ),
-                      //     Padding(
-                      //       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      //       child: Text('Or continue with',
-                      //         style: TextStyle(color: Colors.blue[600]),
-                      //       ),
-                      //     ),
-                      //     Expanded(
-                      //       child: Divider(
-                      //         thickness: 2.5,
-                      //         color: Colors.blue[900],
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
-                    ),
-                    //google and x sign in options
-                    // const SizedBox(height: 50),
-                    // const Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     //google
-                    //     FaIcon(
-                    //       FontAwesomeIcons.google,
-                    //       size:40,
-                    //     ),
-                    //     SizedBox(width: 28),
-                    //     //x
-                    //     FaIcon(
-                    //       FontAwesomeIcons.xTwitter,
-                    //       size:40,
-                    //     ),
-                    //   ],
-                    // ),
+
                     const SizedBox(height: 35),
                     //not a member? register now
                     Row(
@@ -213,7 +167,8 @@ class _SignupPage extends State<SignupPage> {
                           onTap: widget.onTap,
                           child: Text('Login Now',
                             style: GoogleFonts.acme(
-                                fontSize: 18,
+
+                              fontSize: 18,
                                 color: Colors.white,
                                 decoration:TextDecoration.underline,
                                 decorationColor: Colors.white

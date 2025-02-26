@@ -21,7 +21,7 @@ class MyTextfield  extends StatelessWidget{
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: TextField(
-        cursorColor: Colors.blue[400],
+        cursorColor: Colors.green[400],
         style: GoogleFonts.alice(),
         controller: controller,
         obscureText: obscureText,
@@ -36,7 +36,7 @@ class MyTextfield  extends StatelessWidget{
             borderRadius: BorderRadius.circular(8.0),
             borderSide: BorderSide(color: Colors.white),
           ),
-          fillColor: Colors.blue.shade100,
+          fillColor: Colors.green.shade100,
           filled: true,
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.black45),

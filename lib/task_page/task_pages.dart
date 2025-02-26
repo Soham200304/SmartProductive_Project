@@ -2,9 +2,8 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:smartproductive_app/Article_page/article_page.dart';
-import 'package:smartproductive_app/home_page/home_page.dart';
-import 'package:smartproductive_app/prod_buddy/prod_buddy.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:smartproductive_app/drawer_page/drawer.dart';
 
 class TasksPage extends StatefulWidget {
   TasksPage({super.key});
@@ -77,30 +76,55 @@ class _TasksPageState extends State<TasksPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Create Task"),
+        backgroundColor: Color(0xFFD0FFD0),
+        title: Text("Create a Task"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: _taskNameController,
-              decoration: InputDecoration(labelText: "Task Name"),
+              decoration: InputDecoration(
+                hintText: "Task Name",
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide(color: Colors.teal),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(color: Colors.black),
+                ),
+              ),
             ),
             SizedBox(height: 10),
             TextField(
               controller: _descriptionController,
-              decoration: InputDecoration(labelText: "Task Description"),
+              decoration: InputDecoration(
+                hintText: "Task Description",
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(color: Colors.teal),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(color: Colors.black),
+                ),
+              ),
             ),
           ],
         ),
         actions: [
-          TextButton(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent[100]),
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel"),
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: Colors.black),
+            ),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent[100]),
             onPressed: _addTask,
-            child: Text("Create"),
+            child: Text("Create",style: TextStyle(color: Colors.black),),
           ),
         ],
       ),
@@ -127,62 +151,10 @@ class _TasksPageState extends State<TasksPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Tasks"),
-        backgroundColor: Color(0xFF90EE90), // Soft Light Green,
+        backgroundColor: Color(0xFFB2F5B2),
       ),
 
-      drawer: Drawer(
-        child: Container(
-          color: Color(0xFFB2F5B2), // Very Soft Pastel Green
-          child: ListView(
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(color: Color(0xFF90EE90)),
-                child: Center(child: Image.asset('lib/images/sp_final.png')),
-              ),
-              SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.home, size: 30),
-                title: Text('H O M E'),
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => HomePage()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.chat, size: 30),
-                title: Text('P - B U D D Y'),
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => ProdBuddy()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.task, size: 30),
-                title: Text("T A S K S"),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.article, size: 30),
-                title: Text("A R T I C L E S"),
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => ArticlePage()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.auto_graph_sharp, size: 30),
-                title: Text('R E P O R T S'),
-              ),
-              ListTile(
-                leading: Icon(Icons.settings, size: 30),
-                title: Text('S E T T I N G S'),
-              ),
-            ],
-          ),
-        ),
-      ),
+      drawer: CustomDrawer(),
 
       body: Container(
         decoration: BoxDecoration(
@@ -191,7 +163,6 @@ class _TasksPageState extends State<TasksPage> {
             end: Alignment.bottomCenter,
             colors: [
               Color(0xFFD0FFD0), // Gentle Minty Green
-              Color(0xFFB2F5B2), // Very Soft Pastel Green
               Color(0xFF90EE90), // Soft Light Green
             ],
           ),
@@ -207,53 +178,69 @@ class _TasksPageState extends State<TasksPage> {
               return Center(child: Text("No tasks yet. Create a new one!"));
             }
 
-            return ListView(
-              children: snapshot.data!.docs.map((doc) {
-                Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                Color taskColor = Color(data['color']); // Convert stored color back to Color
+            return Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: ListView(
+                children: snapshot.data!.docs.map((doc) {
+                  Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                  Color taskColor = Color(data['color']); // Convert stored color back to Color
 
-                return Dismissible(
-                  key: Key(doc.id),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Icon(Icons.delete, color: Colors.white),
-                  ),
-                  onDismissed: (direction) {
-                    _deleteTask(doc.id);
-                  },
-                  child: Card(
-                    margin: EdgeInsets.all(10),
-                    child: ListTile(
-                      leading: CircleAvatar(backgroundColor: taskColor),
-                      title: Text(data['taskName'],
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(data['description'],
-                              maxLines: 2, overflow: TextOverflow.ellipsis),
-                          SizedBox(height: 5),
-                          Text(
-                            "Created: ${data['timestamp'] != null ? (data['timestamp'] as Timestamp).toDate().toString() : 'N/A'}",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                        ],
+                  return Dismissible(
+                    key: Key(doc.id),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Icon(Icons.delete, color: Colors.white),
+                    ),
+                    onDismissed: (direction) {
+                      _deleteTask(doc.id);
+                    },
+                    child: Card(
+                      color: Colors.green[50],
+                      margin: EdgeInsets.all(10),
+                      child: ListTile(
+                        leading: CircleAvatar(backgroundColor: taskColor, radius: 13,),
+                        title: Text(data['taskName'],
+                            style: GoogleFonts.aleo(fontWeight: FontWeight.bold, fontSize: 25)),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(data['description'],
+                                style: TextStyle(fontSize: 18),
+                                maxLines: 2, overflow: TextOverflow.ellipsis),
+                            SizedBox(height: 5),
+                            Text(
+                              "Created: ${data['timestamp'] != null ? (data['timestamp'] as Timestamp).toDate().toString() : 'N/A'}",
+                              style: TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             );
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showCreateTaskDialog,
-        child: Icon(Icons.add),
-        backgroundColor: Colors.blueAccent,
+      floatingActionButton: GestureDetector(
+        onTap: _showCreateTaskDialog,
+        child: Container(
+          height: 60,
+          width: 60,
+          decoration: BoxDecoration(
+            color: Color(0xFF5EDB6D),
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(18)
+          ),
+          child: const Icon(Icons.add, color: Colors.black),
+        ),
       ),
     );
   }

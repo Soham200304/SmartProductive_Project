@@ -2,13 +2,11 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
-import 'package:smartproductive_app/Article_page/article_page.dart';
-import 'package:smartproductive_app/Second_page/second_page.dart';
-import 'package:smartproductive_app/prod_buddy/prod_buddy.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:smartproductive_app/drawer_page/drawer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:smartproductive_app/task_page/task_pages.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -24,18 +22,9 @@ class _HomePageState extends State<HomePage> {
   Timer? _timer;
   bool _isRunning = false;
   bool _isMusicPlaying = false;
-  bool _isSecondPage = false;
   final AudioPlayer _audioPlayer = AudioPlayer();
   String _selectedTag = "Study";
   Color _selectedTagColor = Colors.blue;
-
-  List<Map<String, dynamic>> _customTasks = [
-    {"name" : "Study", "color" : Colors.blue},
-    {"name" : "Work", "color" : Colors.green},
-    {"name" : "Social", "color" : Colors.purple},
-    {"name" : "Rest", "color" : Colors.red}
-  ];
-
   String _motivationText = "Start Working Today!";
   final List<String> _motivationQuotes = [
     "Keep pushing forward!",
@@ -52,8 +41,26 @@ class _HomePageState extends State<HomePage> {
 
   List<double> _checkpoints = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
 
+  void storeTimerCompletion() async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    String? userId = auth.currentUser?.uid;
+    if (userId == null) return; // Ensure the user is logged in
+
+    await firestore.collection('users') // Main Collection
+        .doc(userId) // Document for the specific user
+        .collection('timers') // Subcollection for timers
+        .add({ // Add a new document with auto-generated ID
+      'completionTime': FieldValue.serverTimestamp(), // Store the current time
+    });
+
+    print("Timer completion time stored successfully!");
+  }
+
   void _startOrCancelTimer() {
     if (_isRunning) {
+      // Cancel the timer if it's already running
       _timer?.cancel();
       setState(() {
         _isRunning = false;
@@ -68,6 +75,7 @@ class _HomePageState extends State<HomePage> {
         _motivationText = _motivationQuotes[Random().nextInt(_motivationQuotes.length)];
       });
 
+      // Start the timer and call _onTimerComplete() when finished
       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
         if (_remainingTime > 0) {
           setState(() {
@@ -81,11 +89,26 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             _isRunning = false;
           });
+          // Call _onTimerComplete() when the timer finishes
           _showCompletionDialog();
           _stopMusic();
         }
       });
     }
+  }
+
+  void _storeCompletionTime(String taskName) async {
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    await FirebaseFirestore.instance.collection('timerCompletions').add({
+      'userId': userId,
+      'completedAt': FieldValue.serverTimestamp(),
+      'completedTime': DateTime.now().toLocal().toString(), // Store local time
+      'timer': _timerValue,
+      'taskName': taskName,
+    });
+    print("Timer completion stored for task: $taskName");
   }
 
   void _toggleMusic() {
@@ -108,7 +131,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
   void _stopMusic() async {
     await _audioPlayer.stop();
     setState(() {
@@ -116,39 +138,22 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-
-  // void _showCompletionDialog() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         backgroundColor: Color(0xFF90E0EF),
-  //         title: Text("Congratulations!!"),
-  //         content: Text("You've focused for ${_timerValue.toInt()} minutes!"),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.pop(context);
-  //             },
-  //             child: Text("OK"),
-  //           )
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
   void _showCancelDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFF52C7F6),
+        backgroundColor: Color(0xFFD0FFD0),
         title: Text("You've stopped focusing"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
                 "OK",
-              style: TextStyle(color: Colors.white, decoration: TextDecoration.underline, decorationColor: Colors.white),
+              style: TextStyle(
+                  color: Colors.blue[900],
+                  decoration: TextDecoration.underline,
+                  decorationColor: Colors.black
+              ),
             ),
           ),
         ],
@@ -157,6 +162,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showTagSelector() {
+    if (_isRunning) {
+      _showSnackBar("Cannot change task while timer is running!");
+      return; // Exit function if timer is running
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -166,30 +175,39 @@ class _HomePageState extends State<HomePage> {
           child: Container(
             height: 300,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28), bottomRight: Radius.zero, bottomLeft: Radius.zero),
-              color: Color(0xFF90E0EF),
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28)),
+              color: Color(0xFFD0FFD0),
             ),
             child: SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    ..._customTasks.map((task) => ListTile(
-                      leading: CircleAvatar(backgroundColor: task["color"], radius: 5,),
-                      title: Text(
-                        task["name"],
-                        style: TextStyle(
-                          fontSize: 20
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('tasks')
+                    .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                    .orderBy('timestamp', descending: true)
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(child: Text("No tasks available. Create one first!"));
+                  }
+                  return ListView(
+                    shrinkWrap: true,
+                    children: snapshot.data!.docs.map((doc) {
+                      Map<String, dynamic> task = doc.data() as Map<String, dynamic>;
+                      Color taskColor = Color(task['color']); // Convert stored color
+                      return ListTile(
+                        leading: CircleAvatar(backgroundColor: taskColor, radius: 5),
+                        title: Text(
+                          task["taskName"],
+                          style: TextStyle(fontSize: 20),
                         ),
-                      ),
-                      onTap: () => _setTag(task["name"], task["color"]),
-                    )),
-                    ListTile(
-                      leading: Icon(Icons.add),
-                      title: Text("Add Task"),
-                      onTap: _showAddTaskDialog,
-                    ),
-                  ],
-                ),
+                        onTap: () => _setTag(task["taskName"], taskColor),
+                      );
+                    }).toList(),
+                  );
+                },
               ),
             ),
           ),
@@ -198,60 +216,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showAddTaskDialog() {
-    TextEditingController taskController = TextEditingController();
-    Color selectedColor = Colors.blue;
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Color(0xFF90E0EF),
-          title: Text("Add Task"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: taskController,
-                decoration: InputDecoration(hintText: "Enter task name"),
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ...[Colors.blue, Colors.green, Colors.purple, Colors.red].map((color) => GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedColor = color;
-                      });
-                    },
-                    child: CircleAvatar(
-                      backgroundColor: color,
-                      radius: 10,
-                    ),
-                  )),
-                ],
-              )
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _customTasks.add({"name": taskController.text, "color": selectedColor});
-                });
-                Navigator.pop(context);
-              },
-              child: Text("Add"),
-            ),
-          ],
-        );
-      },
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.redAccent,
+      ),
     );
   }
 
@@ -263,20 +234,22 @@ class _HomePageState extends State<HomePage> {
     Navigator.pop(context);
   }
 
-  // Sign user out
-  void signuserOut() {
-    FirebaseAuth.instance.signOut();
-  }
-
   void _showCompletionDialog() {
+    setState(() {
+      _isRunning = false; // Enable tag selection again
+    });
+
+    // Store the completion time along with the selected task name
+    _storeCompletionTime(_selectedTag);
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Color(0xFF90E0EF),
+          backgroundColor: Color(0xFFD0FFD0),
           title: Text("Congratulations!!"),
-          content: Text("You've focused for ${_timerValue.toInt()} minutes!"),
+          content: Text("You've focused for ${_timerValue.toInt()} minutes on $_selectedTag!"),
           actions: [
             TextButton(
               onPressed: () {
@@ -297,30 +270,28 @@ class _HomePageState extends State<HomePage> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Color(0xFF90E0EF),
+          backgroundColor: Color(0xFFD0FFD0),
           title: Text("Select Break Duration"),
           content: Wrap(
             spacing: 10,
             children: List.generate(10, (index) {
               return GestureDetector(
                 onTap: () {
-                  setState(() {
-                    _timerValue = index + 1; // Set break duration
-                    _remainingTime = _timerValue.toInt() * 60;
-                    _isRunning = true;
-                  });
                   Navigator.pop(context);
-                  _startBreakTimer();
+                  _startBreakTimer((index + 1) * 60); // Pass seconds instead of minutes
                 },
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(5),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF00A86B), // Better color contrast
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Text("${index + 1}", style: TextStyle(color: Colors.white)),
                   ),
-                  child: Text("${index + 1}", style: TextStyle(color: Colors.white)),
                 ),
               );
             }),
@@ -345,7 +316,7 @@ class _HomePageState extends State<HomePage> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Color(0xFF52C7F6),
+          backgroundColor: Color(0xFFD0FFD0),
           title: Text("Are you sure?"),
           content: Text("Do you want to skip the break and continue?"),
           actions: [
@@ -358,9 +329,11 @@ class _HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () {
+                if (_timer != null) {
+                  _timer!.cancel(); // Ensure previous timer is stopped
+                }
                 setState(() {
-                  _isRunning = true;
-                  _remainingTime = _timerValue.toInt() * 60; // Resume last focus timer
+                  _isRunning = false; // Stop the break mode
                 });
                 Navigator.pop(context);
               },
@@ -372,7 +345,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _startBreakTimer() {
+  void _startBreakTimer(int breakDuration) {
+    if (_timer != null) {
+      _timer!.cancel(); // Ensure any previous timer is stopped
+    }
+
+    setState(() {
+      _remainingTime = breakDuration;
+      _isRunning = true;
+    });
+
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (_remainingTime > 0) {
         setState(() {
@@ -394,7 +376,7 @@ class _HomePageState extends State<HomePage> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Color(0xFF90E0EF),
+          backgroundColor: Color(0xFFD0FFD0),
           title: Text("Break Over"),
           content: Text("Would you like to start another focus session?"),
           actions: [
@@ -417,23 +399,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _navigateToTasksPage() async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TasksPage(
-          // onTaskSelected: (taskName, taskColor) {
-          //   setState(() {
-          //     _selectedTag = taskName;
-          //     _selectedTagColor = taskColor;
-          //   });
-          // },
-        ),
-      ),
-    );
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -445,65 +410,9 @@ class _HomePageState extends State<HomePage> {
               onPressed: _toggleMusic,
               icon: Icon(_isMusicPlaying ? Icons.music_off : Icons.music_note, size: 28),
             ),
-          IconButton(
-            onPressed: signuserOut,
-            icon: Icon(Icons.logout, size: 28),
-          ),
         ],
       ),
-      drawer: Drawer(
-        child: Container(
-          color: Color(0xFFB2F5B2), // Very Soft Pastel Green
-          child: ListView(
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(color: Color(0xFF90EE90)),
-                child: Center(child: Image.asset('lib/images/sp_final.png')),
-              ),
-              SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.home, size: 30),
-                title: Text('H O M E'),
-                onTap: () {
-                  Navigator.pop(context); // Close drawer instead of pushing a new HomePage
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.chat, size: 30),
-                title: Text('P - B U D D Y'),
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => ProdBuddy()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.task, size: 30),
-                title: Text("T A S K S"),
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => TasksPage()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.article, size: 30),
-                title: Text("A R T I C L E S"),
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => ArticlePage()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.auto_graph_sharp, size: 30),
-                title: Text('R E P O R T S'),
-              ),
-              ListTile(
-                leading: Icon(Icons.settings, size: 30),
-                title: Text('S E T T I N G S'),
-              ),
-            ],
-          ),
-        ),
-      ),
+      drawer: CustomDrawer(),
       
       body: Container(
         decoration: BoxDecoration(
@@ -512,7 +421,6 @@ class _HomePageState extends State<HomePage> {
             end: Alignment.bottomCenter,
             colors: [
               Color(0xFFD0FFD0), // Gentle Minty Green
-              Color(0xFFB2F5B2), // Very Soft Pastel Green
               Color(0xFF90EE90), // Soft Light Green
             ],
           ),
@@ -537,15 +445,16 @@ class _HomePageState extends State<HomePage> {
                   startAngle: 270,
                   angleRange: 360,
                   customWidths: CustomSliderWidths(progressBarWidth: 10, handlerSize: 12,trackWidth: 10),
-                  customColors: CustomSliderColors(progressBarColor: Color(0xFF90EE90), trackColor: Color(0xFF90EE90)),
+                  customColors: CustomSliderColors(progressBarColor: Color(0xFF90EE90), trackColor: Color(
+                      0x9890EE90)),
                 ),
                 onChange: _isRunning
                  ? null
                 : (value) {
                   double closestCheckpoint = _checkpoints.reduce((a, b) => (value - a).abs() < (value - b).abs() ? a : b);
                   setState(() {
-                    _timerValue = _checkpoints.reduce((a, b) => (a - 10).abs() < (b - 10).abs() ? a : b);
-                    _remainingTime = closestCheckpoint.toInt() * 60;
+                    _timerValue = closestCheckpoint;
+                    _remainingTime = (_timerValue.toInt() * 60);
                   });
                 },
                 innerWidget: (value) => Center(
@@ -554,7 +463,7 @@ class _HomePageState extends State<HomePage> {
                     height: 230.0,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color(0x5790E0EF),
+                      color: Color(0x1F90E0EF),
                     ),
                     child: Center(
                       child: Text(
@@ -567,7 +476,7 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 35),
               GestureDetector(
-                onTap: _navigateToTasksPage,
+                onTap: _showTagSelector,
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: BoxDecoration(

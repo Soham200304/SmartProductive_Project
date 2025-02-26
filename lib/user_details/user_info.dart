@@ -72,18 +72,17 @@ class _UserInfoState extends State<UserInfo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Color(0xFF90E0EF),
+          backgroundColor: Color(0xFFB2F5B2),
           //title: Text("User Details")
       ),
       body: Container(
-        decoration:BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF90E0EF), // Frosty blue
-              Color(0xFF00B4D8), // Light aqua blue
-              Color(0xFF0096C7), // Blue lagoon
+              Color(0xFFD0FFD0), // Gentle Minty Green
+              Color(0xFF90EE90), // Soft Light Green
             ],
           ),
         ),

@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:smartproductive_app/Article_page/article_page.dart';
-import 'package:smartproductive_app/home_page/home_page.dart';
+import 'package:smartproductive_app/drawer_page/drawer.dart';
 import 'package:groq/groq.dart';
-import 'package:smartproductive_app/task_page/task_pages.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class ProdBuddy extends StatefulWidget {
   const ProdBuddy({super.key});
-
   @override
   State<ProdBuddy> createState() => _ProdBuddyState();
 }
@@ -31,35 +29,73 @@ class _ProdBuddyState extends State<ProdBuddy> {
             "You can suggest them 4  to 5 suggestions how to cultivate their hobbies. The user may ask you in this manner: My hobby is Coding but don't know how to cultivate it."+
             "The format for suggesting ways to cultivate hobby should have name of the suggestion, following with some description about the suggestion and state its advantages. Try not to give repeated suggestions across all other hobbies."+
             "The format for suggesting tasks should have name of the task and following with some description about that task." +
-            "If user does not specify their moods / hobby or user greets you, you greet them in return asking them to input their mood / hobby."
+            "If user does not specify their moods / hobby or user greets you, you greet them in return asking them to input their mood / hobby." +
+            "If user Thanks you for your help, you should greet them in return and give assurance that you'll be there in future."
     );
     final response = await _groq.sendMessage(message);
     return response.choices.first.message.content.replaceAll("*", "");
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _loadMessages(); // Fetch messages from Firebase on app start
+  }
+
+
   void _sendMessage() async {
-    String message = _controller.text.trim(); // Get input text and remove whitespace
+    String message = _controller.text.trim();
     if (message.isNotEmpty) {
       setState(() {
-        messages.add({"text": message, "isUser": true}); // Add user message
-        isLoading = true; // Show loading animation
+        messages.add({"text": message, "isUser": true});
+        isLoading = true;
       });
-      _controller.clear(); // Clear input field after sending
-      _scrollToBottom(); // Scroll down to the latest message
+      _controller.clear();
+      _scrollToBottom();
+      _saveMessageToFirestore(message, true);
 
-      // Await the response from the Groq API
-      String botResponse = await groq_model(message);
-
-      // Add the bot's response to the messages list
-      Future.delayed(Duration(seconds: 2), () {
+      Future.delayed(Duration(seconds: 2), () async {
+        String botResponse = await groq_model(message);
         setState(() {
-          isLoading = false; // Hide loading animation
-          messages.add({"text": botResponse, "isUser": false}); // Sample bot response
+          isLoading = false;
+          messages.add({"text": botResponse, "isUser": false});
         });
+        _saveMessageToFirestore(botResponse, false);
         _scrollToBottom();
       });
     }
   }
+
+  void _saveMessageToFirestore(String text, bool isUser) async {
+    await FirebaseFirestore.instance.collection('chats').add({
+      'text': text,
+      'isUser': isUser,
+      'timestamp': FieldValue.serverTimestamp(), // Stores the exact time
+    });
+  }
+
+
+  void _loadMessages() async {
+    FirebaseFirestore.instance
+        .collection('chats')
+        .where('timestamp', isGreaterThan: Timestamp(0, 0)) // Ignore null timestamps
+        .orderBy('timestamp', descending: false)
+        .snapshots()
+        .listen((snapshot) {
+      setState(() {
+        messages = snapshot.docs.map((doc) {
+          return {
+            "text": doc["text"],
+            "isUser": doc["isUser"],
+            "timestamp": doc["timestamp"] != null
+                ? (doc["timestamp"] as Timestamp).toDate()
+                : DateTime.now(), // Fallback in case timestamp is null
+          };
+        }).toList();
+      });
+    });
+  }
+
   void _scrollToBottom() {
     Future.delayed(Duration(milliseconds: 300), () {
       _scrollController.animateTo(
@@ -69,27 +105,25 @@ class _ProdBuddyState extends State<ProdBuddy> {
       );
     });
   }
-  // void _saveMessages() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   prefs.setString('chatMessages', jsonEncode(messages));
-  // }
-  //
-  // void _loadMessages() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String? storedMessages = prefs.getString('chatMessages');
-  //   if (storedMessages != null) {
-  //     setState(() {
-  //       messages = List<Map<String, dynamic>>.from(jsonDecode(storedMessages));
-  //     });
-  //   }
-  // }
 
+  String formatDate(DateTime date) {
+    DateTime today = DateTime.now();
+    DateTime yesterday = today.subtract(Duration(days: 1));
+
+    if (date.year == today.year && date.month == today.month && date.day == today.day) {
+      return "Today";
+    } else if (date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day) {
+      return "Yesterday";
+    } else {
+      return "${date.day}/${date.month}/${date.year}";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF90EE90), // Soft Light Green
+        backgroundColor: Color(0xFFB2F5B2),
         elevation: 0,
         title: Text(
           textAlign: TextAlign.center,
@@ -97,59 +131,7 @@ class _ProdBuddyState extends State<ProdBuddy> {
           style: GoogleFonts.alike(fontSize: 21, fontWeight: FontWeight.bold),
         ),
       ),
-      drawer: Drawer(
-        child: Container(
-          color: Color(0xFFB2F5B2), // Very Soft Pastel Green
-          child: ListView(
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(color: Color(0xFF90EE90)),
-                child: Center(child: Image.asset('lib/images/sp_final.png')),
-              ),
-              SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.home, size: 30),
-                title: Text('H O M E'),
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => HomePage()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.chat, size: 30),
-                title: Text('P - B U D D Y'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.task, size: 30),
-                title: Text("T A S K S"),
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => TasksPage()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.article, size: 30),
-                title: Text("A R T I C L E S"),
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => ArticlePage()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.auto_graph_sharp, size: 30),
-                title: Text('R E P O R T S'),
-              ),
-              ListTile(
-                leading: Icon(Icons.settings, size: 30),
-                title: Text('S E T T I N G S'),
-              ),
-            ],
-          ),
-        ),
-      ),
+      drawer: CustomDrawer(),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -157,7 +139,6 @@ class _ProdBuddyState extends State<ProdBuddy> {
             end: Alignment.bottomCenter,
             colors: [
               Color(0xFFD0FFD0), // Gentle Minty Green
-              Color(0xFFB2F5B2), // Very Soft Pastel Green
               Color(0xFF90EE90), // Soft Light Green
             ],
           ),
@@ -177,33 +158,71 @@ class _ProdBuddyState extends State<ProdBuddy> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            SizedBox(width: 5),
-                      _buildLoadingAnimation(),
+                            _buildLoadingAnimation(),
                           ],
                         ),
                       ),
                     );
                   }
+
                   final message = messages[index];
-                  return Align(
-                    alignment: message["isUser"] ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Padding(
-                      padding: message["isUser"] ? EdgeInsets.only(left: 18.0) : EdgeInsets.only(right: 18.0),
-                      child: Container(
-                        padding: EdgeInsets.all(14),
-                        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: message["isUser"] ? Colors.teal[200] : Colors.grey[200],
-                          borderRadius: message["isUser"] ? BorderRadius.only(
-                              bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20), topRight: Radius.zero, topLeft: Radius.circular(20))
-                              :BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20), topRight: Radius.circular(20), topLeft: Radius.zero)
+                  DateTime messageDate = message["timestamp"] ?? DateTime.now();
+                  String formattedDate = formatDate(messageDate);
+
+                  // Check if the previous message had a different date
+                  bool showDateHeader = index == 0 ||
+                      formatDate(messages[index - 1]["timestamp"]) != formattedDate;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      if (showDateHeader)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: Container(
+                            height: 20,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                formattedDate,
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+                              ),
+                            ),
+                          ),
                         ),
-                        child: Text(
-                          message["text"],
-                          style: GoogleFonts.aBeeZee(fontSize: 20),
+                      Align(
+                        alignment: message["isUser"] ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Padding(
+                          padding: message["isUser"] ? EdgeInsets.only(left: 18.0) : EdgeInsets.only(right: 18.0),
+                          child: Container(
+                            padding: EdgeInsets.all(14),
+                            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: message["isUser"] ? Colors.teal[200] : Colors.grey[200],
+                              borderRadius: message["isUser"]
+                                  ? BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                  topRight: Radius.zero,
+                                  topLeft: Radius.circular(20))
+                                  : BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                  topRight: Radius.circular(20),
+                                  topLeft: Radius.zero),
+                            ),
+                            child: Text(
+                              message["text"],
+                              style: GoogleFonts.aBeeZee(fontSize: 20),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   );
                 },
               ),

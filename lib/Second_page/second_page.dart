@@ -41,9 +41,8 @@ class _SecondPageState extends State<SecondPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF90E0EF), // Frosty blue
-              Color(0xFF00B4D8), // Light aqua blue
-              Color(0xFF0096C7), // Blue lagoon
+              Color(0xFFD0FFD0), // Gentle Minty Green
+              Color(0xFF90EE90), // Soft Light Green
             ],
           ),
         ),
