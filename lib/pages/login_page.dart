@@ -1,15 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:smartproductive_app/components/my_button.dart';
 import 'package:smartproductive_app/components/my_textfield.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginPage extends StatefulWidget{
+class LoginPage extends StatefulWidget {
   final Function()? onTap;
   const LoginPage({super.key, required this.onTap});
-
-  //text editing controller
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -17,59 +16,64 @@ class LoginPage extends StatefulWidget{
 
 class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
-
   final passwordController = TextEditingController();
 
-  //sign userin
-  void signUserIn() async{
-    //show loading circle
+  // Sign user in and link with Firestore
+  void signUserIn() async {
+    // Show loading circle
     showDialog(
-        context: context,
-        builder: (context) {
-          return Center(
-            child: LoadingAnimationWidget.inkDrop(color: Colors.white, size: 50),
-          );
-        }
+      context: context,
+      builder: (context) {
+        return Center(
+          child: LoadingAnimationWidget.inkDrop(color: Colors.white, size: 50),
+        );
+      },
     );
 
-    //try signin
-    try{
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text,
-          password: passwordController.text
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
       );
-      //pop the loading circle
+
+      // Get the user ID
+      String uid = userCredential.user!.uid;
+
+      // Update last login timestamp in Firestore
+      await FirebaseFirestore.instance.collection("users").doc(uid).update({
+        "last_login": Timestamp.now(),
+      });
+
+      // Close the loading animation
       Navigator.pop(context);
-    }on FirebaseAuthException catch (e) {
-      //pop the loading circle
+    } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-     //show error message
       showErrorMessage(e.code);
     }
   }
 
-  //error message pop-up
+  // Error message pop-up
   void showErrorMessage(String message) {
     showDialog(
-        context: context,
-        builder:(context) {
-          return AlertDialog(
-            backgroundColor: Color(0xFF90E0EF), // Frosty blue
-            title: Text(
-              message,
-              style: const TextStyle(fontSize: 25),
-            ),
-          );
-        }
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF90E0EF), // Frosty blue
+          title: Text(
+            message,
+            style: const TextStyle(fontSize: 25),
+          ),
+        );
+      },
     );
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: Colors.blue[300],
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -83,97 +87,95 @@ class _LoginPageState extends State<LoginPage> {
           child: Align(
             alignment: Alignment.topCenter,
             child: SingleChildScrollView(
-              child: SafeArea(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 30),
-                    //AppTitle
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Image.asset('lib/images/sp_final.png',),
-                    ),
-                    // Text(
-                    //   "SmartProductive",
-                    //   style: GoogleFonts.alike(fontSize: 45, fontWeight: FontWeight.bold,color: Colors.blue[100]),
-                    // ),
-                    const SizedBox(height: 40),
-                    //welcome back, you've been missed
-                    Text('Welcome back!',
-                      style: GoogleFonts.acme(fontSize: 22, color: Colors.black),
-                    ),
-                    Text(
-                      'Let\'s go on remission!!',
-                      style: GoogleFonts.acme(fontSize: 18, color: Colors.black),
-                    ),
-                    const SizedBox(height: 25),
-                    //username TextField
-                    MyTextfield(
-                      controller: emailController,
-                      hintText: "Email",
-                      obscureText: false,
-                      prefixIcon: const Icon(Icons.person),
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: 10),
-                    //password text field
-                    MyTextfield(
-                      controller: passwordController,
-                      hintText: "Password",
-                      obscureText: true,
-                      prefixIcon: const Icon(Icons.lock),
-                      keyboardType: TextInputType.text
-                    ),
-
-                    const SizedBox(height: 5),
-                    //forgot password
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Forgot Password?',
-                            style: GoogleFonts.alice(color: Colors.black, decoration: TextDecoration.underline),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    //signin button
-                    MyButton(
-                      text: "Login",
-                      onTap: signUserIn,
-                    ),
-
-                    const SizedBox(height: 5),
-                    const SizedBox(height: 45),
-                    //not a member? register now
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 30),
+                  // App Title & Logo
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Image.asset('lib/images/sp_final.png'),
+                  ),
+                  const SizedBox(height: 40),
+                  // Welcome Message
+                  Text(
+                    'Welcome back!',
+                    style: GoogleFonts.acme(fontSize: 22, color: Colors.black),
+                  ),
+                  Text(
+                    'Let\'s go on remission!!',
+                    style: GoogleFonts.acme(fontSize: 18, color: Colors.black),
+                  ),
+                  const SizedBox(height: 25),
+                  // Email TextField
+                  MyTextfield(
+                    controller: emailController,
+                    hintText: "Email",
+                    obscureText: false,
+                    prefixIcon: const Icon(Icons.person),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 10),
+                  // Password TextField
+                  MyTextfield(
+                    controller: passwordController,
+                    hintText: "Password",
+                    obscureText: true,
+                    prefixIcon: const Icon(Icons.lock),
+                    keyboardType: TextInputType.text,
+                  ),
+                  const SizedBox(height: 5),
+                  // Forgot Password
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text("Not a member? ",
-                          style: GoogleFonts.acme(
-                            fontSize: 18,
+                        Text(
+                          'Forgot Password?',
+                          style: GoogleFonts.alice(
                             color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(width: 4,),
-                        GestureDetector(
-                          onTap: widget.onTap,
-                          child: Text('Register now',
-                            style: GoogleFonts.acme(
-                              fontSize: 18,
-                              color: Colors.white,
-                              decoration:TextDecoration.underline,
-                              decorationColor: Colors.white
-                            ),
+                            decoration: TextDecoration.underline,
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 15),
+                  // Login Button
+                  MyButton(
+                    text: "Login",
+                    onTap: signUserIn,
+                  ),
+                  const SizedBox(height: 5),
+                  const SizedBox(height: 45),
+                  // Register Now
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Not a member? ",
+                        style: GoogleFonts.acme(
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      GestureDetector(
+                        onTap: widget.onTap,
+                        child: Text(
+                          'Register now',
+                          style: GoogleFonts.acme(
+                            fontSize: 18,
+                            color: Colors.white,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

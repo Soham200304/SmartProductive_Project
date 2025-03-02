@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:smartproductive_app/drawer_page/drawer.dart';
@@ -26,6 +27,8 @@ class _HomePageState extends State<HomePage> {
   String _selectedTag = "Study";
   Color _selectedTagColor = Colors.blue;
   String _motivationText = "Start Working Today!";
+  int _coins = 0;
+  String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
   final List<String> _motivationQuotes = [
     "Keep pushing forward!",
     "You can do this!",
@@ -56,6 +59,62 @@ class _HomePageState extends State<HomePage> {
     });
 
     print("Timer completion time stored successfully!");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserCoins();
+  }
+
+  /// Fetch user's current coins from Firebase
+  Future<void> _fetchUserCoins() async {
+      String userId = FirebaseAuth.instance.currentUser?.uid ?? ""; // Get the current user's ID
+
+      if (userId.isEmpty) return; // Ensure userId is valid
+
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      setState(() {
+        _coins = userDoc.exists ? (userDoc['coins'] ?? 0) : 0;
+      });
+  }
+
+  Future<void> _rewardCoins(int coinsEarned) async {
+    try {
+      // Get the current user ID
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        print("User is not logged in.");
+        return;
+      }
+
+      String userId = user.uid; // Get UID
+
+      // Ensure Firestore document exists before updating
+      DocumentReference userRef =
+      FirebaseFirestore.instance.collection('users').doc(userId);
+
+      await userRef.set({'coins': FieldValue.increment(coinsEarned)}, SetOptions(merge: true));
+
+      print("Coins updated successfully!");
+
+    } catch (e) {
+      print("Error updating coins: $e");
+    }
+  }
+
+  /// Calculate coin rewards based on time focused
+  int _calculateCoins(int focusedMinutes) {
+    if (focusedMinutes >= 55) return 10;
+    if (focusedMinutes >= 35) return 9;
+    if (focusedMinutes >= 20) return 7;
+    if (focusedMinutes >= 10) return 3;
+    return 0;
   }
 
   void _startOrCancelTimer() {
@@ -90,7 +149,7 @@ class _HomePageState extends State<HomePage> {
             _isRunning = false;
           });
           // Call _onTimerComplete() when the timer finishes
-          _showCompletionDialog();
+          _onTimerComplete();
           _stopMusic();
         }
       });
@@ -234,14 +293,54 @@ class _HomePageState extends State<HomePage> {
     Navigator.pop(context);
   }
 
-  void _showCompletionDialog() {
+  void _onTimerComplete() async {
     setState(() {
       _isRunning = false; // Enable tag selection again
     });
 
-    // Store the completion time along with the selected task name
+    int focusedMinutes = (_timerValue.toInt() * 60 - _remainingTime) ~/ 60;
+    int coinsEarned = _calculateCoins(focusedMinutes);
+
+    // Update Firebase with new coin balance
+    await FirebaseFirestore.instance.collection('users')
+        .doc(userId)
+        .update({
+      'coins': FieldValue.increment(coinsEarned),
+    });
+
+    setState(() {
+      _coins += coinsEarned;
+    });
+
+    // Store completion time
     _storeCompletionTime(_selectedTag);
 
+    _showCompletionDialog(focusedMinutes, coinsEarned);
+
+    int earnedCoins = _calculateCoins(_timerValue.toInt()); // Calculate coins
+    _rewardCoins(earnedCoins); // Update Firestore
+    _showRewardAlert(earnedCoins); // Show alert
+  }
+
+  void _showRewardAlert(int earnedCoins) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Focus Session Complete!"),
+          content: Text("You earned $earnedCoins coins 🎉"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showCompletionDialog(int focusedMinutes, int coinsEarned) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -249,7 +348,10 @@ class _HomePageState extends State<HomePage> {
         return AlertDialog(
           backgroundColor: Color(0xFFD0FFD0),
           title: Text("Congratulations!!"),
-          content: Text("You've focused for ${_timerValue.toInt()} minutes on $_selectedTag!"),
+          content: Text(
+            "You've focused for $focusedMinutes minutes on $_selectedTag!\n"
+                "Coins Earned: $coinsEarned",
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -263,6 +365,7 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+
 
   void _showBreakDialog() {
     showDialog(
@@ -409,6 +512,19 @@ class _HomePageState extends State<HomePage> {
             IconButton(
               onPressed: _toggleMusic,
               icon: Icon(_isMusicPlaying ? Icons.music_off : Icons.music_note, size: 28),
+            ),
+          // Coin Display - Hide when timer is running
+          if (!_isRunning)
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Row(
+                children: [
+                  Icon(FontAwesomeIcons.coins, color: Colors.amber, size: 30),
+                  SizedBox(width: 8),
+                  Text("$_coins", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+
+                ],
+              ),
             ),
         ],
       ),

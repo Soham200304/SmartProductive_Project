@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -43,34 +44,44 @@ class _ReportsPageState extends State<ReportsPage> {
 
 
   Future<void> _fetchReportData() async {
-    QuerySnapshot timerSnapshot = await FirebaseFirestore.instance.collection('timerCompletions').get();
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid; // Get current user ID
 
-    Map<DateTime, int> focusData = {};
-    List<Map<String, dynamic>> taskLogs = [];
+      QuerySnapshot timerSnapshot = await FirebaseFirestore.instance
+          .collection('timerCompletions')
+          .where("userId", isEqualTo: uid) // Filter by user ID
+          .get();
 
-    for (var doc in timerSnapshot.docs) {
-      var data = doc.data() as Map<String, dynamic>;
+      Map<DateTime, int> focusData = {};
+      List<Map<String, dynamic>> taskLogs = [];
 
-      // Check for null timestamps
-      if (data['completedAt'] != null && data['taskName'] != null && data['timer'] != null) {
-        DateTime date = (data['completedAt'] as Timestamp).toDate();
-        DateTime normalizedDate = DateTime(date.year, date.month, date.day);
+      for (var doc in timerSnapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
 
-        focusData[normalizedDate] = (focusData[normalizedDate] ?? 0) + (data['timer'] as num).toInt();
+        if (data['completedAt'] != null && data['taskName'] != null && data['timer'] != null) {
+          DateTime date = (data['completedAt'] as Timestamp).toDate();
+          DateTime normalizedDate = DateTime(date.year, date.month, date.day);
 
-        taskLogs.add({
-          'taskName': data['taskName'],
-          'date': date,
-          'minutesFocused': (data['timer'] as num).toInt(),
-        });
+          focusData[normalizedDate] = (focusData[normalizedDate] ?? 0) + (data['timer'] as num).toInt();
+
+          taskLogs.add({
+            'taskName': data['taskName'],
+            'date': date,
+            'minutesFocused': (data['timer'] as num).toInt(),
+          });
+        }
       }
-    }
 
-    setState(() {
-      _focusMinutesPerDay = focusData;
-      _taskLogs = taskLogs;
-    });
+      setState(() {
+        _focusMinutesPerDay = focusData;
+        _taskLogs = taskLogs;
+      });
+
+    } catch (e) {
+      print("Error fetching reports: $e");
+    }
   }
+
 
   /// Date Picker for filtering reports
   Future<void> _selectDateRange(BuildContext context) async {

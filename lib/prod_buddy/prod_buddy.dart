@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -67,18 +68,24 @@ class _ProdBuddyState extends State<ProdBuddy> {
   }
 
   void _saveMessageToFirestore(String text, bool isUser) async {
+    User? user = FirebaseAuth.instance.currentUser; // Get current logged-in user
+    if (user == null) return;
+
     await FirebaseFirestore.instance.collection('chats').add({
+      'userId': user.uid, // Associate message with logged-in user
       'text': text,
       'isUser': isUser,
-      'timestamp': FieldValue.serverTimestamp(), // Stores the exact time
+      'timestamp': FieldValue.serverTimestamp(),
     });
   }
 
-
   void _loadMessages() async {
+    User? user = FirebaseAuth.instance.currentUser; // Get logged-in user
+    if (user == null) return;
+
     FirebaseFirestore.instance
         .collection('chats')
-        .where('timestamp', isGreaterThan: Timestamp(0, 0)) // Ignore null timestamps
+        .where('userId', isEqualTo: user.uid) // Fetch messages for the logged-in user
         .orderBy('timestamp', descending: false)
         .snapshots()
         .listen((snapshot) {
@@ -89,12 +96,13 @@ class _ProdBuddyState extends State<ProdBuddy> {
             "isUser": doc["isUser"],
             "timestamp": doc["timestamp"] != null
                 ? (doc["timestamp"] as Timestamp).toDate()
-                : DateTime.now(), // Fallback in case timestamp is null
+                : DateTime.now(),
           };
         }).toList();
       });
     });
   }
+
 
   void _scrollToBottom() {
     Future.delayed(Duration(milliseconds: 300), () {

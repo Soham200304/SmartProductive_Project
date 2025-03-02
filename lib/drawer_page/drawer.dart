@@ -4,6 +4,7 @@ import 'package:smartproductive_app/Article_page/article_page.dart';
 import 'package:smartproductive_app/home_page/home_page.dart';
 import 'package:smartproductive_app/prod_buddy/prod_buddy.dart';
 import 'package:smartproductive_app/reports_page/reports_page.dart';
+import 'package:smartproductive_app/store_page/store_page.dart';
 import 'package:smartproductive_app/task_page/task_pages.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -44,6 +45,12 @@ class CustomDrawer extends StatelessWidget {
               icon: Icons.article,
               text: 'A R T I C L E S',
               page: ArticlePage(),
+            ),
+            _buildDrawerItem(
+              context,
+              icon: Icons.store,
+              text: 'S T O R E S',
+              page: StorePage(),
             ),
             _buildDrawerItem(
               context,

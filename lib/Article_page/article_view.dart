@@ -51,7 +51,7 @@ class _ArticleWebViewState extends State<ArticleWebView> {
           widget.title,
           style: GoogleFonts.alike(fontSize: 24),
         ),
-        backgroundColor: Color(0xFF90E0EF),
+        backgroundColor: Color(0xFFB2F5B2),
       ),
       body: Stack(
         children: [
@@ -61,9 +61,8 @@ class _ArticleWebViewState extends State<ArticleWebView> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFF90E0EF), // Frosty blue
-                  Color(0xFF00B4D8), // Light aqua blue
-                  Color(0xFF0096C7), // Blue lagoon
+                  Color(0xFFD0FFD0), // Gentle Minty Green
+                  Color(0xFF90EE90), // Soft Light Green
                 ],
               ),
             ),

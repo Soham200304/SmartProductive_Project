@@ -52,6 +52,7 @@ dependencies:
   fl_chart: ^0.70.2
   table_calendar: ^3.2.0
   flutter_foreground_task: ^8.17.0
+  razorpay_flutter: ^1.4.0
 
 dev_dependencies:
   flutter_test:
