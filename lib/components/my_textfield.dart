@@ -21,7 +21,7 @@ class MyTextfield  extends StatelessWidget{
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: TextField(
-        cursorColor: Colors.green[400],
+        cursorColor: Colors.blue[400],
         style: GoogleFonts.alice(),
         controller: controller,
         obscureText: obscureText,
@@ -30,16 +30,16 @@ class MyTextfield  extends StatelessWidget{
           prefixIcon: prefixIcon,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
-            borderSide: const BorderSide(color: Colors.white),
+            borderSide: const BorderSide(color: Colors.black54),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
-            borderSide: BorderSide(color: Colors.white),
+            borderSide: BorderSide(color: Color(0xFF4FC3F7)),
           ),
-          fillColor: Colors.green.shade100,
+          fillColor: Color(0xFFFFF9F2),
           filled: true,
           hintText: hintText,
-          hintStyle: TextStyle(color: Colors.black45),
+          hintStyle: TextStyle(color: Color(0xFF37474F)),
         ),
       ),
     );

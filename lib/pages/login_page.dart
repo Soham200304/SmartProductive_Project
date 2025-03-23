@@ -74,14 +74,16 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFD0FFD0), // Gentle Minty Green
-              Color(0xFF90EE90), // Soft Light Green
-            ],
-          ),
+          // gradient: LinearGradient(
+          //   begin: Alignment.topCenter,
+          //   end: Alignment.bottomCenter,
+          //   colors: [
+          //     // Color(0xFFD0FFD0), // Gentle Minty Green
+          //     // Color(0xFF90EE90), // Soft Light Green
+          //     Color(0xFF4FC3F7)
+          //   ],
+          color: Color(0xFFFFF9F2),
+          // ),
         ),
         child: SafeArea(
           child: Align(
@@ -100,11 +102,11 @@ class _LoginPageState extends State<LoginPage> {
                   // Welcome Message
                   Text(
                     'Welcome back!',
-                    style: GoogleFonts.acme(fontSize: 22, color: Colors.black),
+                    style: GoogleFonts.acme(fontSize: 22, color: Color(0xFF37474F)),
                   ),
                   Text(
                     'Let\'s go on remission!!',
-                    style: GoogleFonts.acme(fontSize: 18, color: Colors.black),
+                    style: GoogleFonts.acme(fontSize: 18, color: Color(0xFF37474F)),
                   ),
                   const SizedBox(height: 25),
                   // Email TextField
@@ -157,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
                         "Not a member? ",
                         style: GoogleFonts.acme(
                           fontSize: 18,
-                          color: Colors.black,
+                          color: Color(0xFF37474F),
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -167,9 +169,9 @@ class _LoginPageState extends State<LoginPage> {
                           'Register now',
                           style: GoogleFonts.acme(
                             fontSize: 18,
-                            color: Colors.white,
+                            color: Colors.blueAccent,
                             decoration: TextDecoration.underline,
-                            decorationColor: Colors.white,
+                            decorationColor: Colors.blueAccent,
                           ),
                         ),
                       ),

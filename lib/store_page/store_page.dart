@@ -66,16 +66,22 @@ class _StorePageState extends State<StorePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Color(0xFFB9E7FB),
           title: Text("How will you get this item?"),
           content: Text("Choose your purchase method."),
           actions: [
-            TextButton(
-              onPressed: () => _buyWithCoins(item),
-              child: Text("Pay by Coins"),
-            ),
-            TextButton(
-              onPressed: () => _buyWithMoney(item),
-              child: Text("Buy for ₹20"),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () => _buyWithCoins(item),
+                  child: Text("Coins",style: TextStyle(color: Colors.blueAccent),),
+                ),
+                SizedBox(width: 30,),
+                ElevatedButton(
+                  onPressed: () => _buyWithMoney(item),
+                  child: Text("Buy for ₹20",style: TextStyle(color: Colors.blueAccent),),
+                ),
+              ],
             ),
           ],
         );
@@ -156,7 +162,7 @@ class _StorePageState extends State<StorePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Store"),
-        backgroundColor: Color(0xFFB2F5B2), // Soft Green
+        backgroundColor: Color(0xFF4FC3F7),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
@@ -173,11 +179,12 @@ class _StorePageState extends State<StorePage> {
       drawer: CustomDrawer(),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFD0FFD0), Color(0xFF90EE90)],
-          ),
+          // gradient: LinearGradient(
+          //   begin: Alignment.topCenter,
+          //   end: Alignment.bottomCenter,
+          //   colors: [Color(0xFFD0FFD0), Color(0xFF90EE90)],
+          // ),
+          color: Color(0xFFFFF9F2),
         ),
         child: ListView.builder(
           itemCount: storeItems.length,

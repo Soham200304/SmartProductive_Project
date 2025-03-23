@@ -201,7 +201,7 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFFD0FFD0),
+        backgroundColor: Color(0xFF4FC3F7), // Ocean Blue (Primary),
         title: Text("You've stopped focusing"),
         actions: [
           TextButton(
@@ -346,7 +346,7 @@ class _HomePageState extends State<HomePage> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Color(0xFFD0FFD0),
+          backgroundColor: Color(0xFF4FC3F7), // Ocean Blue (Primary)
           title: Text("Congratulations!!"),
           content: Text(
             "You've focused for $focusedMinutes minutes on $_selectedTag!\n"
@@ -373,7 +373,7 @@ class _HomePageState extends State<HomePage> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Color(0xFFD0FFD0),
+          backgroundColor: Color(0xFF4FC3F7), // Ocean Blue (Primary)
           title: Text("Select Break Duration"),
           content: Wrap(
             spacing: 10,
@@ -390,7 +390,7 @@ class _HomePageState extends State<HomePage> {
                     height: 30,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: Color(0xFF00A86B), // Better color contrast
+                      color: Color(0xFFFFA726),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Text("${index + 1}", style: TextStyle(color: Colors.white)),
@@ -419,7 +419,7 @@ class _HomePageState extends State<HomePage> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Color(0xFFD0FFD0),
+          backgroundColor: Color(0xFF4FC3F7),
           title: Text("Are you sure?"),
           content: Text("Do you want to skip the break and continue?"),
           actions: [
@@ -479,7 +479,7 @@ class _HomePageState extends State<HomePage> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Color(0xFFD0FFD0),
+          backgroundColor: Color(0xFF4FC3F7),
           title: Text("Break Over"),
           content: Text("Would you like to start another focus session?"),
           actions: [
@@ -506,7 +506,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFFB2F5B2), // Very Soft Pastel Green
+        backgroundColor: Color(0xFF4FC3F7), // Ocean Blue (Primary)
+        //iconTheme: IconThemeData(color: Color(0xFF37474F)), // Deep Gray-Blue icons
         actions: [
           if (_isRunning)
             IconButton(
@@ -532,15 +533,16 @@ class _HomePageState extends State<HomePage> {
       
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFD0FFD0), // Gentle Minty Green
-              Color(0xFF90EE90), // Soft Light Green
-            ],
-          ),
-        ),
+        //   gradient: LinearGradient(
+        //     begin: Alignment.topCenter,
+        //     end: Alignment.bottomCenter,
+        //     colors: [
+        //       Color(0xFFD0FFD0), // Gentle Minty Green
+        //       Color(0xFF90EE90), // Soft Light Green
+        //     ],
+        //   ),
+        color: Color(0xFFFFF9F2),
+     ),
 
         child: Center(
           child: Column(
@@ -561,8 +563,7 @@ class _HomePageState extends State<HomePage> {
                   startAngle: 270,
                   angleRange: 360,
                   customWidths: CustomSliderWidths(progressBarWidth: 10, handlerSize: 12,trackWidth: 10),
-                  customColors: CustomSliderColors(progressBarColor: Color(0xFF90EE90), trackColor: Color(
-                      0x9890EE90)),
+                  customColors: CustomSliderColors(progressBarColor: Color(0xFFFFA726), trackColor: Color(0xFF37474F)),
                 ),
                 onChange: _isRunning
                  ? null
@@ -579,7 +580,7 @@ class _HomePageState extends State<HomePage> {
                     height: 230.0,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color(0x1F90E0EF),
+                      color: Color(0xB4FC3F7),
                     ),
                     child: Center(
                       child: Text(
@@ -596,7 +597,7 @@ class _HomePageState extends State<HomePage> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Color(0xFF5AAB61)),
+                    border: Border.all(color: Color(0xFF4FC3F7)),
                     color: Color(0x4AD1CFCF),
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -626,8 +627,7 @@ class _HomePageState extends State<HomePage> {
                 onTap: _startOrCancelTimer,
                 child: Container(
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(28),
-                    color: _isRunning ? Colors.red[100] : Color(0xFF90EE90) // Soft Light Green
-                    ,
+                    color: _isRunning ? Colors.red[100] : Color(0xFF4FC3F7), // Ocean Blue (Primary)
                      boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.5),

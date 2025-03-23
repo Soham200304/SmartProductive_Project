@@ -14,11 +14,11 @@ class CustomDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        color: Color(0xFFB2F5B2), // Very Soft Pastel Green
+        color: Color(0xFFA1DFFA),
         child: ListView(
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFFB2F5B2)),
+              decoration: BoxDecoration(color: Color(0xFFA1DFFA),),
               child: Center(child: Image.asset('lib/images/sp_final.png')),
             ),
             SizedBox(height: 10),

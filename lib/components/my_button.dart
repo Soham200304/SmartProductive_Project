@@ -16,14 +16,15 @@ class MyButton extends StatelessWidget {
         padding: const EdgeInsets.all(25),
         margin: const EdgeInsets.symmetric(horizontal: 25),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF4FDB90),
-              Color(0xFF4FDB60),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+          // gradient: LinearGradient(
+          //   colors: [
+          //     Color(0xFF4FDB90),
+          //     Color(0xFF4FDB60),
+          //   ],
+          //   begin: Alignment.topCenter,
+          //   end: Alignment.bottomCenter,
+          // ),
+          color: Color(0xFF4FC3F7),
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Center(

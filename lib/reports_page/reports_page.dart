@@ -15,13 +15,14 @@ class _ReportsPageState extends State<ReportsPage> {
   List<Map<String, dynamic>> _taskLogs = [];
   DateTime _selectedStartDate = DateTime.now().subtract(Duration(days: 7));
   DateTime _selectedEndDate = DateTime.now();
-  String _selectedFilter = 'Week'; // Default filter
+  String _selectedFilter = 'Month'; // Default filter
 
   @override
   void initState() {
     super.initState();
     _fetchReportData();
   }
+
   ///Function to filter tasks based on selected time range
   List<Map<String, dynamic>> _getFilteredLogs() {
     DateTime now = DateTime.now();
@@ -45,18 +46,31 @@ class _ReportsPageState extends State<ReportsPage> {
 
   Future<void> _fetchReportData() async {
     try {
-      String uid = FirebaseAuth.instance.currentUser!.uid; // Get current user ID
+      String? uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) {
+        print("❌ User is not logged in.");
+        return;
+      }
+
+      print("🟢 Fetching data for user: $uid");
 
       QuerySnapshot timerSnapshot = await FirebaseFirestore.instance
           .collection('timerCompletions')
-          .where("userId", isEqualTo: uid) // Filter by user ID
+          .where("userId", isEqualTo: uid)
           .get();
+
+      print("🔥 Retrieved ${timerSnapshot.docs.length} documents from Firestore.");
+
+      if (timerSnapshot.docs.isEmpty) {
+        print("⚠️ No data found for this user.");
+      }
 
       Map<DateTime, int> focusData = {};
       List<Map<String, dynamic>> taskLogs = [];
 
       for (var doc in timerSnapshot.docs) {
         var data = doc.data() as Map<String, dynamic>;
+        print("📜 Document data: $data");
 
         if (data['completedAt'] != null && data['taskName'] != null && data['timer'] != null) {
           DateTime date = (data['completedAt'] as Timestamp).toDate();
@@ -69,6 +83,8 @@ class _ReportsPageState extends State<ReportsPage> {
             'date': date,
             'minutesFocused': (data['timer'] as num).toInt(),
           });
+        } else {
+          print("⚠️ Skipping document due to missing fields.");
         }
       }
 
@@ -77,10 +93,13 @@ class _ReportsPageState extends State<ReportsPage> {
         _taskLogs = taskLogs;
       });
 
+      print("✅ Data successfully fetched and processed.");
+
     } catch (e) {
-      print("Error fetching reports: $e");
+      print("❌ Error fetching reports: $e");
     }
   }
+
 
 
   /// Date Picker for filtering reports
@@ -100,10 +119,28 @@ class _ReportsPageState extends State<ReportsPage> {
     }
   }
 
+  void saveTimerCompletion(String taskName, int minutes) async {
+    String? uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      print("❌ No user logged in.");
+      return;
+    }
+
+    await FirebaseFirestore.instance.collection("timerCompletions").add({
+      "userId": uid, // ✅ Make sure this is saved
+      "taskName": taskName,
+      "timer": minutes,
+      "completedAt": FieldValue.serverTimestamp(),
+    });
+
+    print("✅ Timer completion saved.");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xFF4FC3F7),
         title: Text("Reports", style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
@@ -115,7 +152,7 @@ class _ReportsPageState extends State<ReportsPage> {
       drawer: CustomDrawer(),
       body: SingleChildScrollView(
         child: Container(
-          color: Color(0xFFD0FFD0),
+          color: Color(0xFFFFF9F2),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -137,6 +174,7 @@ class _ReportsPageState extends State<ReportsPage> {
   /// 📊 Bar Chart for Daily Productivity
   Widget _buildBarChart() {
     return Card(
+      color: Color(0xFFD5F0FB),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 3,
       child: Padding(
@@ -220,6 +258,7 @@ class _ReportsPageState extends State<ReportsPage> {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 3,
+      color: Color(0xFFD0EFFD),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -262,6 +301,7 @@ class _ReportsPageState extends State<ReportsPage> {
                 var task = filteredLogs[index];
                 return Card(
                   margin: EdgeInsets.symmetric(vertical: 6),
+                  color: Color(0xFFFFD54F),//Warm golden sand
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                   child: ListTile(
@@ -291,7 +331,7 @@ class _ReportsPageState extends State<ReportsPage> {
       return sum + ((task['minutesFocused'] ?? 0) as int);
     });
     return Card(
-      color: Colors.blueAccent[400],
+      color: Color(0xFFFFA726),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 3,
       child: Padding(

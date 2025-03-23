@@ -39,20 +39,21 @@ class _ArticlePageState extends State<ArticlePage> {
           'Productivity Articles',
           style: GoogleFonts.alike(fontSize: 24),
         ),
-        backgroundColor: Color(0xFFB2F5B2) // Very Soft Pastel Green,
+        backgroundColor: Color(0xFF4FC3F7)
       ),
       drawer: CustomDrawer(),
 
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFD0FFD0), // Gentle Minty Green
-              Color(0xFF90EE90), // Soft Light Green
-            ],
-          ),
+          // gradient: LinearGradient(
+          //   begin: Alignment.topCenter,
+          //   end: Alignment.bottomCenter,
+          //   colors: [
+          //     Color(0xFFD0FFD0), // Gentle Minty Green
+          //     Color(0xFF90EE90), // Soft Light Green
+          //   ],
+          // ),
+          color: Color(0xFFFFF9F2),
         ),
         child: articles.isEmpty
             ? Center(child: CircularProgressIndicator())

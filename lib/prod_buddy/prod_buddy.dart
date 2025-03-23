@@ -131,7 +131,7 @@ class _ProdBuddyState extends State<ProdBuddy> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFFB2F5B2),
+        backgroundColor: Color(0xFF4FC3F7),
         elevation: 0,
         title: Text(
           textAlign: TextAlign.center,
@@ -142,14 +142,15 @@ class _ProdBuddyState extends State<ProdBuddy> {
       drawer: CustomDrawer(),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFD0FFD0), // Gentle Minty Green
-              Color(0xFF90EE90), // Soft Light Green
-            ],
-          ),
+          // gradient: LinearGradient(
+          //   begin: Alignment.topCenter,
+          //   end: Alignment.bottomCenter,
+          //   colors: [
+          //     Color(0xFFD0FFD0), // Gentle Minty Green
+          //     Color(0xFF90EE90), // Soft Light Green
+          //   ],
+          // ),
+          color: Color(0xFFFFF9F2),
         ),
         child: Column(
           children: [
@@ -210,7 +211,7 @@ class _ProdBuddyState extends State<ProdBuddy> {
                             padding: EdgeInsets.all(14),
                             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                             decoration: BoxDecoration(
-                              color: message["isUser"] ? Colors.teal[200] : Colors.grey[200],
+                              color: message["isUser"] ? Color(0xFFFFA726) : Colors.grey[200],
                               borderRadius: message["isUser"]
                                   ? BorderRadius.only(
                                   bottomLeft: Radius.circular(20),
@@ -262,10 +263,10 @@ class _ProdBuddyState extends State<ProdBuddy> {
                     ),
                     SizedBox(width: 8),
                     FloatingActionButton(
-                      backgroundColor: Color(0xFFB2F5B2) // Very Soft Pastel Green
+                      backgroundColor: Color(0xFF4FC3F7)
                       ,
                       onPressed: _sendMessage,
-                      child: Icon(Icons.send, color: Color(0xFF5AAB61))
+                      child: Icon(Icons.send, color: Color(0xFF264DEC))
                       ),
                   ],
                 ),

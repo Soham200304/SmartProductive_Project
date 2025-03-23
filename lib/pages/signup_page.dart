@@ -92,11 +92,12 @@ class _SignupPage extends State<SignupPage> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFD0FFD0), Color(0xFF90EE90)],
-          ),
+          // gradient: LinearGradient(
+          //   begin: Alignment.topCenter,
+          //   end: Alignment.bottomCenter,
+          //   colors: [Color(0xFFD0FFD0), Color(0xFF90EE90)],
+          // ),
+          color: Color(0xFFFFF9F2)
         ),
         child: SafeArea(
           child: Align(
@@ -113,11 +114,11 @@ class _SignupPage extends State<SignupPage> {
                   const SizedBox(height: 40),
                   Text(
                     'Don\'t have an Account?',
-                    style: GoogleFonts.acme(fontSize: 22, color: Colors.black),
+                    style: GoogleFonts.acme(fontSize: 22, color: Color(0xFF37474F)),
                   ),
                   Text(
                     'Sign Up Here!!',
-                    style: GoogleFonts.acme(fontSize: 18, color: Colors.black),
+                    style: GoogleFonts.acme(fontSize: 18, color: Color(0xFF37474F)),
                   ),
                   const SizedBox(height: 25),
 
@@ -164,7 +165,7 @@ class _SignupPage extends State<SignupPage> {
                     children: [
                       Text(
                         "Already have an Account? ",
-                        style: GoogleFonts.acme(fontSize: 18, color: Colors.black),
+                        style: GoogleFonts.acme(fontSize: 18, color: Color(0xFF37474F)),
                       ),
                       const SizedBox(width: 4),
                       GestureDetector(
@@ -173,9 +174,9 @@ class _SignupPage extends State<SignupPage> {
                           'Login Now',
                           style: GoogleFonts.acme(
                             fontSize: 18,
-                            color: Colors.white,
+                            color: Colors.blueAccent,
                             decoration: TextDecoration.underline,
-                            decorationColor: Colors.white,
+                            decorationColor: Colors.blueAccent,
                           ),
                         ),
                       ),

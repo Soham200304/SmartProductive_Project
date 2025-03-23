@@ -59,7 +59,7 @@ class _TasksPageState extends State<TasksPage> {
       SnackBar(
         content: Text(message),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.green, // ✅ Green color for success
+        backgroundColor: Color(0xFF4FC3F7),
         duration: Duration(seconds: 2),
       ),
     );
@@ -76,7 +76,7 @@ class _TasksPageState extends State<TasksPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFFD0FFD0),
+        backgroundColor: Color(0xFF9ADFFA),
         title: Text("Create a Task"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -87,7 +87,7 @@ class _TasksPageState extends State<TasksPage> {
                 hintText: "Task Name",
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(color: Colors.teal),
+                  borderSide: BorderSide(color: Color(0xFF4FC3F7)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -102,7 +102,7 @@ class _TasksPageState extends State<TasksPage> {
                 hintText: "Task Description",
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: const BorderSide(color: Colors.teal),
+                  borderSide: const BorderSide(color: Color(0xFF4FC3F7)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -114,7 +114,7 @@ class _TasksPageState extends State<TasksPage> {
         ),
         actions: [
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent[100]),
+            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF4FC3F7)),
             onPressed: () => Navigator.pop(context),
             child: Text(
               "Cancel",
@@ -122,7 +122,7 @@ class _TasksPageState extends State<TasksPage> {
             ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent[100]),
+            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF4FC3F7)),
             onPressed: _addTask,
             child: Text("Create",style: TextStyle(color: Colors.black),),
           ),
@@ -151,21 +151,22 @@ class _TasksPageState extends State<TasksPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Tasks"),
-        backgroundColor: Color(0xFFB2F5B2),
+        backgroundColor: Color(0xFF4FC3F7),
       ),
 
       drawer: CustomDrawer(),
 
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFD0FFD0), // Gentle Minty Green
-              Color(0xFF90EE90), // Soft Light Green
-            ],
-          ),
+          // gradient: LinearGradient(
+          //   begin: Alignment.topCenter,
+          //   end: Alignment.bottomCenter,
+          //   colors: [
+          //     Color(0xFFD0FFD0), // Gentle Minty Green
+          //     Color(0xFF90EE90), // Soft Light Green
+          //   ],
+          // ),
+          color: Color(0xFFFFF9F2),
         ),
         child: StreamBuilder(
           stream: fetchTasks(),
@@ -201,7 +202,7 @@ class _TasksPageState extends State<TasksPage> {
                       _deleteTask(doc.id);
                     },
                     child: Card(
-                      color: Colors.green[50],
+                      color: Color(0xFFCDE0F6),
                       margin: EdgeInsets.all(10),
                       child: ListTile(
                         leading: CircleAvatar(backgroundColor: taskColor, radius: 13,),
@@ -235,7 +236,7 @@ class _TasksPageState extends State<TasksPage> {
           height: 60,
           width: 60,
           decoration: BoxDecoration(
-            color: Color(0xFF5EDB6D),
+            color:  Color(0xFFFFA726),
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(18)
           ),
