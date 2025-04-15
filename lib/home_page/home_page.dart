@@ -235,7 +235,7 @@ class _HomePageState extends State<HomePage> {
             height: 300,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28)),
-              color: Color(0xFFD0FFD0),
+              color: Color(0xFF4FC3F7)
             ),
             child: SafeArea(
               child: StreamBuilder(
@@ -257,10 +257,10 @@ class _HomePageState extends State<HomePage> {
                       Map<String, dynamic> task = doc.data() as Map<String, dynamic>;
                       Color taskColor = Color(task['color']); // Convert stored color
                       return ListTile(
-                        leading: CircleAvatar(backgroundColor: taskColor, radius: 5),
+                        leading: CircleAvatar(backgroundColor: taskColor, radius: 10),
                         title: Text(
                           task["taskName"],
-                          style: TextStyle(fontSize: 20),
+                          style: TextStyle(fontSize: 22),
                         ),
                         onTap: () => _setTag(task["taskName"], taskColor),
                       );
@@ -626,7 +626,7 @@ class _HomePageState extends State<HomePage> {
               GestureDetector(
                 onTap: _startOrCancelTimer,
                 child: Container(
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(28),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),
                     color: _isRunning ? Colors.red[100] : Color(0xFF4FC3F7), // Ocean Blue (Primary)
                      boxShadow: [
                     BoxShadow(

@@ -108,7 +108,7 @@ class CustomDrawer extends StatelessWidget {
     return await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFFB2F5B2),
+        backgroundColor: Color(0xFFA3DEF8),
         title: Text("Logout"),
         content: Text("Are you sure you want to log out?"),
         actions: [

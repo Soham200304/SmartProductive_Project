@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:smartproductive_app/drawer_page/drawer.dart';
 import 'package:smartproductive_app/payment_gateway/payment_gateway.dart';
 
@@ -161,7 +162,8 @@ class _StorePageState extends State<StorePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Store"),
+        title: Text("Store",
+        style: GoogleFonts.alike(fontSize: 22, fontWeight: FontWeight.bold)),
         backgroundColor: Color(0xFF4FC3F7),
         actions: [
           Padding(
@@ -186,41 +188,43 @@ class _StorePageState extends State<StorePage> {
           // ),
           color: Color(0xFFFFF9F2),
         ),
-        child: ListView.builder(
-          itemCount: storeItems.length,
-          itemBuilder: (context, index) {
-            var item = storeItems[index];
-            bool isPurchased = purchasedItems.contains(item["title"]);
-
-            return Container(
-              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: item["gradient"],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+          child: ListView.builder(
+            itemCount: storeItems.length,
+            itemBuilder: (context, index) {
+              var item = storeItems[index];
+              bool isPurchased = purchasedItems.contains(item["title"]);
+              return Container(
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: item["gradient"],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: ListTile(
-                contentPadding: EdgeInsets.all(16),
-                title: Text(
-                  item["title"],
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                child: ListTile(
+                  contentPadding: EdgeInsets.all(16),
+                  title: Text(
+                    item["title"],
+                    style: GoogleFonts.alike(fontSize: 18, color: Colors.white,),
+                  ),
+                  subtitle: Text(
+                    isPurchased ? "Unlocked ✅" : "${item["price"]} Coins",
+                    style: GoogleFonts.alike(fontSize: 12, color: Colors.white70,),
+                  ),
+                  trailing: isPurchased
+                      ? Icon(Icons.check_circle, color: Colors.green)
+                      : ElevatedButton(
+                      onPressed: () => _showPurchaseDialog(context, item),
+                      child: Text("Get", style: GoogleFonts.alike(fontSize: 15, color: Colors.black,fontWeight:FontWeight.bold)),
+                  ),
                 ),
-                subtitle: Text(
-                  isPurchased ? "Unlocked ✅" : "${item["price"]} Coins",
-                  style: TextStyle(color: Colors.white70),
-                ),
-                trailing: isPurchased
-                    ? Icon(Icons.check_circle, color: Colors.green)
-                    : ElevatedButton(
-                    onPressed: () => _showPurchaseDialog(context, item),
-                    child: Text("Get"),
-                ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         )
       ),
     );

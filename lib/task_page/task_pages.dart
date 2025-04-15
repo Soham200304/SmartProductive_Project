@@ -150,7 +150,8 @@ class _TasksPageState extends State<TasksPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Tasks"),
+        title: Text("Tasks",
+        style: GoogleFonts.alike(fontSize: 22, fontWeight: FontWeight.bold)),
         backgroundColor: Color(0xFF4FC3F7),
       ),
 
@@ -180,7 +181,7 @@ class _TasksPageState extends State<TasksPage> {
             }
 
             return Padding(
-              padding: const EdgeInsets.all(5.0),
+              padding: const EdgeInsets.all(8.0),
               child: ListView(
                 children: snapshot.data!.docs.map((doc) {
                   Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -205,9 +206,9 @@ class _TasksPageState extends State<TasksPage> {
                       color: Color(0xFFCDE0F6),
                       margin: EdgeInsets.all(10),
                       child: ListTile(
-                        leading: CircleAvatar(backgroundColor: taskColor, radius: 13,),
+                        leading: CircleAvatar(backgroundColor: taskColor, radius: 10,),
                         title: Text(data['taskName'],
-                            style: GoogleFonts.aleo(fontWeight: FontWeight.bold, fontSize: 25)),
+                            style: GoogleFonts.aleo(fontWeight: FontWeight.bold, fontSize: 20)),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

@@ -36,8 +36,8 @@ class _ArticlePageState extends State<ArticlePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Productivity Articles',
-          style: GoogleFonts.alike(fontSize: 24),
+          'Articles',
+          style: GoogleFonts.alike(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Color(0xFF4FC3F7)
       ),

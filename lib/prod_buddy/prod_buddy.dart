@@ -136,7 +136,7 @@ class _ProdBuddyState extends State<ProdBuddy> {
         title: Text(
           textAlign: TextAlign.center,
           "Motivo",
-          style: GoogleFonts.alike(fontSize: 21, fontWeight: FontWeight.bold),
+          style: GoogleFonts.alike(fontSize: 22, fontWeight: FontWeight.bold),
         ),
       ),
       drawer: CustomDrawer(),
@@ -211,7 +211,7 @@ class _ProdBuddyState extends State<ProdBuddy> {
                             padding: EdgeInsets.all(14),
                             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                             decoration: BoxDecoration(
-                              color: message["isUser"] ? Color(0xFFFFA726) : Colors.grey[200],
+                              color: message["isUser"] ? Color(0xFFA3DEF8) : Colors.grey[200],
                               borderRadius: message["isUser"]
                                   ? BorderRadius.only(
                                   bottomLeft: Radius.circular(20),
@@ -263,8 +263,8 @@ class _ProdBuddyState extends State<ProdBuddy> {
                     ),
                     SizedBox(width: 8),
                     FloatingActionButton(
-                      backgroundColor: Color(0xFF4FC3F7)
-                      ,
+                      backgroundColor: Color(0xFF4FC3F7),
+                      elevation: 0,
                       onPressed: _sendMessage,
                       child: Icon(Icons.send, color: Color(0xFF264DEC))
                       ),

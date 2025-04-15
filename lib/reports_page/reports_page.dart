@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:smartproductive_app/drawer_page/drawer.dart';
 
@@ -141,7 +142,7 @@ class _ReportsPageState extends State<ReportsPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF4FC3F7),
-        title: Text("Reports", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text("Reports", style: GoogleFonts.alike(fontSize: 22, fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: Icon(Icons.date_range),
