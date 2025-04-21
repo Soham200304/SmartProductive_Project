@@ -59,7 +59,7 @@ class _TasksPageState extends State<TasksPage> {
       SnackBar(
         content: Text(message),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: Color(0xFF4FC3F7),
+        backgroundColor: Colors.redAccent,
         duration: Duration(seconds: 2),
       ),
     );

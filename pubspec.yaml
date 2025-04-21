@@ -89,7 +89,6 @@ flutter:
     - lib/assets/
     - lib/Article_page/cover_img/
     - audios/focus_music.wav
-    - lib/user_details/user_images/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
