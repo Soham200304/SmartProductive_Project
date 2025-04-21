@@ -37,7 +37,7 @@ class _ArticleWebViewState extends State<ArticleWebView> {
   Widget _buildLoadingAnimation() {
     return Center(
       child: LoadingAnimationWidget.inkDrop(
-        color: Colors.white,
+        color: Colors.black,
         size: 50,
       ),
     );

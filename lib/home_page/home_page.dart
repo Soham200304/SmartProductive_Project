@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
     "You're doing great, keep going!"
   ];
 
-  final String cloudinaryAudioUrl = "https://res.cloudinary.com/djhtg9chy/video/upload/v1739479052/focus_music_rbdlug.mp3";
+  String cloudinaryAudioUrl = "https://res.cloudinary.com/djhtg9chy/video/upload/v1739479052/focus_music_rbdlug.mp3";
 
   List<double> _checkpoints = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
 
@@ -197,6 +197,43 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _showMusicSelectionDialog(BuildContext context) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection("users").doc(userId).get();
+
+    List<dynamic> unlockedMusic = userDoc["unlockedMusic"] ?? [];
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color(0xFF7DC8F3), // Ocean Blue (Primary)
+        title: Text("Select Focus Sound"),
+        content: unlockedMusic.isEmpty
+            ? Text("No unlocked sounds yet.")
+            : Container(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: unlockedMusic.length,
+            itemBuilder: (context, index) {
+              String url = unlockedMusic[index];
+              return ListTile(
+                title: Text("Music ${index + 1}"),
+                onTap: () {
+                  setState(() {
+                    cloudinaryAudioUrl = url; // Save selected URL
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+
   void _showCancelDialog() {
     showDialog(
       context: context,
@@ -319,25 +356,6 @@ class _HomePageState extends State<HomePage> {
 
     int earnedCoins = _calculateCoins(_timerValue.toInt()); // Calculate coins
     _rewardCoins(earnedCoins); // Update Firestore
-    _showRewardAlert(earnedCoins); // Show alert
-  }
-
-  void _showRewardAlert(int earnedCoins) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Focus Session Complete!"),
-          content: Text("You earned $earnedCoins coins 🎉"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void _showCompletionDialog(int focusedMinutes, int coinsEarned) {
@@ -510,9 +528,15 @@ class _HomePageState extends State<HomePage> {
         //iconTheme: IconThemeData(color: Color(0xFF37474F)), // Deep Gray-Blue icons
         actions: [
           if (_isRunning)
-            IconButton(
-              onPressed: _toggleMusic,
-              icon: Icon(_isMusicPlaying ? Icons.music_off : Icons.music_note, size: 28),
+            GestureDetector(
+              onLongPress: () => _showMusicSelectionDialog(context),
+              child: IconButton(
+                onPressed: _toggleMusic,
+                icon: Icon(
+                  _isMusicPlaying ? Icons.music_off : Icons.music_note,
+                  size: 28,
+                ),
+              ),
             ),
           // Coin Display - Hide when timer is running
           if (!_isRunning)
@@ -523,7 +547,6 @@ class _HomePageState extends State<HomePage> {
                   Icon(FontAwesomeIcons.coins, color: Colors.amber, size: 30),
                   SizedBox(width: 8),
                   Text("$_coins", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-
                 ],
               ),
             ),

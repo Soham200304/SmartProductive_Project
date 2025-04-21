@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,7 +20,7 @@ class _ProdBuddyState extends State<ProdBuddy> {
   List<Map<String, dynamic>> messages = []; // Stores messages with sender info
   final ScrollController _scrollController = ScrollController(); // Controller to manage scrolling
   bool isLoading = false; // Tracks loading state
-
+  late StreamSubscription<QuerySnapshot> _chatSubscription;
 
   Future<String> groq_model(String message) async {
     final _groq = Groq(apiKey:'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', model: "llama-3.3-70b-versatile");
@@ -80,15 +82,17 @@ class _ProdBuddyState extends State<ProdBuddy> {
   }
 
   void _loadMessages() async {
-    User? user = FirebaseAuth.instance.currentUser; // Get logged-in user
+    User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    FirebaseFirestore.instance
+    _chatSubscription = FirebaseFirestore.instance
         .collection('chats')
-        .where('userId', isEqualTo: user.uid) // Fetch messages for the logged-in user
+        .where('userId', isEqualTo: user.uid)
         .orderBy('timestamp', descending: false)
         .snapshots()
         .listen((snapshot) {
+      if (!mounted) return;
+
       setState(() {
         messages = snapshot.docs.map((doc) {
           return {
@@ -102,7 +106,6 @@ class _ProdBuddyState extends State<ProdBuddy> {
       });
     });
   }
-
 
   void _scrollToBottom() {
     Future.delayed(Duration(milliseconds: 300), () {
@@ -142,14 +145,6 @@ class _ProdBuddyState extends State<ProdBuddy> {
       drawer: CustomDrawer(),
       body: Container(
         decoration: BoxDecoration(
-          // gradient: LinearGradient(
-          //   begin: Alignment.topCenter,
-          //   end: Alignment.bottomCenter,
-          //   colors: [
-          //     Color(0xFFD0FFD0), // Gentle Minty Green
-          //     Color(0xFF90EE90), // Soft Light Green
-          //   ],
-          // ),
           color: Color(0xFFFFF9F2),
         ),
         child: Column(
@@ -167,6 +162,7 @@ class _ProdBuddyState extends State<ProdBuddy> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            SizedBox(width: 5,),
                             _buildLoadingAnimation(),
                           ],
                         ),
@@ -190,7 +186,7 @@ class _ProdBuddyState extends State<ProdBuddy> {
                           padding: EdgeInsets.symmetric(vertical: 8.0),
                           child: Container(
                             height: 20,
-                            width: 50,
+                            width: 80,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(8),
@@ -198,7 +194,10 @@ class _ProdBuddyState extends State<ProdBuddy> {
                             child: Center(
                               child: Text(
                                 formattedDate,
-                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+                                style: GoogleFonts.aBeeZee(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54,
+                                ),
                               ),
                             ),
                           ),
@@ -279,8 +278,16 @@ class _ProdBuddyState extends State<ProdBuddy> {
   }
   Widget _buildLoadingAnimation() {
     return LoadingAnimationWidget.waveDots(
-      color: Colors.white,
+      color: Colors.black,
       size: 35,
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.dispose();
+    _chatSubscription.cancel();
+    super.dispose();
   }
 }

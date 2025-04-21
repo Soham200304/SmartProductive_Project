@@ -1,59 +1,74 @@
 import 'package:razorpay_flutter/razorpay_flutter.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class RazorpayService {
   late Razorpay _razorpay;
 
+  // 🔁 Callback handlers
+  Function()? onSuccess;
+  Function()? onFailure;
+
   RazorpayService() {
     _razorpay = Razorpay();
 
-    // Attach event listeners
+    // 🎧 Attach event listeners
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
   }
+
+  // 🧼 Dispose Razorpay when done
   void dispose() {
-    _razorpay.clear(); // Cleanup Razorpay event listeners
+    _razorpay.clear();
   }
 
-  // ✅ Handle successful payment and reward coins
+  // ✅ Payment Success: Trigger onSuccess() if set
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     print("✅ Payment Successful: ${response.paymentId}");
 
-    String userId = FirebaseAuth.instance.currentUser!.uid;
+    if (onSuccess != null) {
+      onSuccess!();
+    }
 
-    // Reward 30 coins after successful payment
+    // Optional: Give coins as a bonus on payment
+    String userId = FirebaseAuth.instance.currentUser!.uid;
     await FirebaseFirestore.instance.collection("users").doc(userId).update({
-      "coins": FieldValue.increment(30),
+      "coins": FieldValue.increment(30), // 🎉 30 bonus coins
     });
 
-    print("🎉 Coins added to user account!");
+    print("🎉 30 Coins added to user account!");
   }
 
-  // ❌ Handle payment failure
+  // ❌ Payment Failed: Trigger onFailure() if set
   void _handlePaymentError(PaymentFailureResponse response) {
     print("❌ Payment Failed: ${response.message}");
+
+    if (onFailure != null) {
+      onFailure!();
+    }
   }
 
-  // 💳 Handle external wallet selection
+  // 💳 External Wallet Selected (Optional)
   void _handleExternalWallet(ExternalWalletResponse response) {
     print("💼 External Wallet Selected: ${response.walletName}");
   }
 
-  // 🚀 Start payment process
-  void startPayment({required String productName, required int amount}) {
+  // 🚀 Start Payment
+  void startPayment({
+    required String productName,
+    required int amount,
+  }) {
     var options = {
-      'key': 'rzp_test_EsaGO1AC9PRNbb', // 🔹 Replace with your actual API Key
-      'amount': amount * 100, // Convert ₹ to Paisa (₹50 = 5000)
+      'key': 'rzp_test_EsaGO1AC9PRNbb', // 🔐 Replace with your real key in production
+      'amount': amount * 100, // ₹ to paise
       'name': 'SmartProductive',
       'description': productName,
       'prefill': {
         'contact': '9876543210',
         'email': 'user@example.com',
       },
-      'theme': {'color': '#F37254'}
+      'theme': {'color': '#F37254'},
     };
 
     try {

@@ -44,26 +44,47 @@ class _ReportsPageState extends State<ReportsPage> {
         .toList();
   }
 
+  Map<DateTime, int> _getFilteredFocusMinutes() {
+    DateTime now = DateTime.now();
+    DateTime startFilterDate;
+
+    if (_selectedFilter == "Day") {
+      startFilterDate = DateTime(now.year, now.month, now.day);
+    } else if (_selectedFilter == "Week") {
+      startFilterDate = now.subtract(Duration(days: 7));
+    } else if (_selectedFilter == "Month") {
+      startFilterDate = DateTime(now.year, now.month, 1);
+    } else {
+      startFilterDate = DateTime(now.year, 1, 1);
+    }
+
+    return _focusMinutesPerDay.entries
+        .where((entry) => entry.key.isAfter(startFilterDate))
+        .fold<Map<DateTime, int>>({}, (map, entry) {
+      map[entry.key] = entry.value;
+      return map;
+    });
+  }
 
   Future<void> _fetchReportData() async {
     try {
       String? uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid == null) {
-        print("❌ User is not logged in.");
+        print("User is not logged in.");
         return;
       }
 
-      print("🟢 Fetching data for user: $uid");
+      print("Fetching data for user: $uid");
 
       QuerySnapshot timerSnapshot = await FirebaseFirestore.instance
           .collection('timerCompletions')
           .where("userId", isEqualTo: uid)
           .get();
 
-      print("🔥 Retrieved ${timerSnapshot.docs.length} documents from Firestore.");
+      print("Retrieved ${timerSnapshot.docs.length} documents from Firestore.");
 
       if (timerSnapshot.docs.isEmpty) {
-        print("⚠️ No data found for this user.");
+        print("No data found for this user.");
       }
 
       Map<DateTime, int> focusData = {};
@@ -71,7 +92,7 @@ class _ReportsPageState extends State<ReportsPage> {
 
       for (var doc in timerSnapshot.docs) {
         var data = doc.data() as Map<String, dynamic>;
-        print("📜 Document data: $data");
+        print("Document data: $data");
 
         if (data['completedAt'] != null && data['taskName'] != null && data['timer'] != null) {
           DateTime date = (data['completedAt'] as Timestamp).toDate();
@@ -85,7 +106,7 @@ class _ReportsPageState extends State<ReportsPage> {
             'minutesFocused': (data['timer'] as num).toInt(),
           });
         } else {
-          print("⚠️ Skipping document due to missing fields.");
+          print("Skipping document due to missing fields.");
         }
       }
 
@@ -94,10 +115,10 @@ class _ReportsPageState extends State<ReportsPage> {
         _taskLogs = taskLogs;
       });
 
-      print("✅ Data successfully fetched and processed.");
+      print("Data successfully fetched and processed.");
 
     } catch (e) {
-      print("❌ Error fetching reports: $e");
+      print("Error fetching reports: $e");
     }
   }
 
@@ -120,10 +141,16 @@ class _ReportsPageState extends State<ReportsPage> {
     }
   }
 
+  double _calculateAverageFocusMinutes(Map<DateTime, int> data) {
+    if (data.isEmpty) return 0;
+    int total = data.values.reduce((a, b) => a + b);
+    return total / data.length;
+  }
+
   void saveTimerCompletion(String taskName, int minutes) async {
     String? uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) {
-      print("❌ No user logged in.");
+      print("No user logged in.");
       return;
     }
 
@@ -134,7 +161,7 @@ class _ReportsPageState extends State<ReportsPage> {
       "completedAt": FieldValue.serverTimestamp(),
     });
 
-    print("✅ Timer completion saved.");
+    print("Timer completion saved.");
   }
 
   @override
@@ -174,6 +201,8 @@ class _ReportsPageState extends State<ReportsPage> {
 
   /// 📊 Bar Chart for Daily Productivity
   Widget _buildBarChart() {
+    final filteredData = _getFilteredFocusMinutes();
+
     return Card(
       color: Color(0xFFD5F0FB),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -186,14 +215,17 @@ class _ReportsPageState extends State<ReportsPage> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             Container(
-              height: 250, // Increased height for better visibility
-              child: BarChart(
+              height: 250,
+              child: filteredData.isEmpty
+                  ? Center(child: Text("No data for selected period"))
+                  : BarChart(
                 BarChartData(
                   barTouchData: BarTouchData(
                     touchTooltipData: BarTouchTooltipData(
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        DateTime date = filteredData.keys.elementAt(group.x);
                         return BarTooltipItem(
-                          "${_focusMinutesPerDay.keys.elementAt(group.x).day}/${_focusMinutesPerDay.keys.elementAt(group.x).month}\n${rod.toY.toInt()} min",
+                          "${date.day}/${date.month}\n${rod.toY.toInt()} min",
                           TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                         );
                       },
@@ -214,7 +246,7 @@ class _ReportsPageState extends State<ReportsPage> {
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: (double value, TitleMeta meta) {
-                          DateTime date = _focusMinutesPerDay.keys.elementAt(value.toInt());
+                          DateTime date = filteredData.keys.elementAt(value.toInt());
                           return Padding(
                             padding: EdgeInsets.only(top: 8.0),
                             child: Text("${date.day}/${date.month}",
@@ -228,13 +260,13 @@ class _ReportsPageState extends State<ReportsPage> {
                   borderData: FlBorderData(
                     border: Border.all(color: Colors.transparent),
                   ),
-                  barGroups: _focusMinutesPerDay.entries.map((entry) {
+                  barGroups: filteredData.entries.map((entry) {
                     return BarChartGroupData(
-                      x: _focusMinutesPerDay.keys.toList().indexOf(entry.key),
+                      x: filteredData.keys.toList().indexOf(entry.key),
                       barRods: [
                         BarChartRodData(
                           toY: entry.value.toDouble(),
-                          width: 18, // Adjust width for a clean look
+                          width: 18,
                           borderRadius: BorderRadius.circular(6),
                           gradient: LinearGradient(
                             colors: [Colors.blue.shade400, Colors.purpleAccent],

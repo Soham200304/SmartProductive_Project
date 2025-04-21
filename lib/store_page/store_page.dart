@@ -17,11 +17,36 @@ class _StorePageState extends State<StorePage> {
   RazorpayService razorpayService = RazorpayService();
 
   List<Map<String, dynamic>> storeItems = [
-    {"title": "Deep Flow Beats", "price": 3, "gradient": [Colors.blue, Colors.purple]},
-    {"title": "Zen Harmony Waves", "price": 40, "gradient": [Colors.green, Colors.teal]},
-    {"title": "Echoes of Focus", "price": 50, "gradient": [Colors.orange, Colors.red]},
-    {"title": "Serene Mind Tones", "price": 60, "gradient": [Colors.pink, Colors.deepPurple]},
-    {"title": "Neural Sync Rhythms", "price": 70, "gradient": [Colors.cyan, Colors.blue]},
+    {
+      "title": "Deep Flow Beats",
+      "price": 3,
+      "gradient": [Colors.blue, Colors.purple],
+      "url":"https://res.cloudinary.com/djhtg9chy/video/upload/v1745073936/Deep_Flow_Beats_wxvdp1.m4a",
+    },
+    {
+      "title": "Zen Harmony Waves",
+      "price": 40,
+      "gradient": [Colors.green, Colors.teal],
+      "url":"https://res.cloudinary.com/djhtg9chy/video/upload/v1744991089/Zen_Harmony_Waves_wcikpe.m4a"
+    },
+    {
+      "title": "Echoes of Focus",
+      "price": 50,
+      "gradient": [Colors.orange, Colors.red],
+      "url":"https://res.cloudinary.com/djhtg9chy/video/upload/v1745073999/Echoes_of_Focus_uxxofe.m4a"
+    },
+    {
+      "title": "Serene Mind Tones",
+      "price": 60,
+      "gradient": [Colors.pink, Colors.deepPurple],
+      "url":"https://res.cloudinary.com/djhtg9chy/video/upload/v1745074098/Serene_Mind_Tones_dbfx2f.m4a"
+    },
+    {
+      "title": "Neural Sync Rhythms",
+      "price": 70,
+      "gradient": [Colors.cyan, Colors.blue],
+      "url":"https://res.cloudinary.com/djhtg9chy/video/upload/v1745074064/Neural_Sync_Rythms_wytr5v.m4a"
+    },
   ];
 
   @override
@@ -62,7 +87,6 @@ class _StorePageState extends State<StorePage> {
       );
       return;
     }
-
     showDialog(
       context: context,
       builder: (context) {
@@ -107,8 +131,9 @@ class _StorePageState extends State<StorePage> {
 
         if (currentCoins >= item["price"] && !purchased.contains(item["title"])) {
           transaction.update(userRef, {
-            "coins": currentCoins - item["price"], // Firestore handles the update
-            "purchasedItems": FieldValue.arrayUnion([item["title"]]), // Store purchased item
+            "coins": currentCoins - item["price"],
+            "purchasedItems": FieldValue.arrayUnion([item["title"]]),
+            "unlockedMusic": FieldValue.arrayUnion([item["url"]]),
           });
         }
       });
@@ -127,28 +152,32 @@ class _StorePageState extends State<StorePage> {
   // Handle purchasing with money
   void _buyWithMoney(Map<String, dynamic> item) {
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Redirecting to payment gateway... 💳")),
-    );
+
+    // Assign callbacks BEFORE payment
+    razorpayService.onSuccess = () => _onPaymentSuccess(item);
+    razorpayService.onFailure = () {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Payment failed. Please try again.")),
+      );
+    };
 
     razorpayService.startPayment(
       productName: item["title"],
-      amount: 20,
+      amount: 20, // ₹20
     );
 
-    // Simulating successful payment (normally done in _handlePaymentSuccess)
-    Future.delayed(Duration(seconds: 3), () => _onPaymentSuccess(item));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Redirecting to payment gateway... 💳")),
+    );
   }
 
-  // Handle successful Razorpay payment
   void _onPaymentSuccess(Map<String, dynamic> item) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
-    // Store purchased item in Firestore
     await FirebaseFirestore.instance.collection("users").doc(userId).update({
-      "purchasedItems": FieldValue.arrayUnion([item["title"]])
+      "purchasedItems": FieldValue.arrayUnion([item["title"]]),
+      "unlockedMusic": FieldValue.arrayUnion([item["url"]])
     });
-
     setState(() {
       purchasedItems.add(item["title"]);
     });
