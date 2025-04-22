@@ -210,11 +210,6 @@ class _StorePageState extends State<StorePage> {
       drawer: CustomDrawer(),
       body: Container(
         decoration: BoxDecoration(
-          // gradient: LinearGradient(
-          //   begin: Alignment.topCenter,
-          //   end: Alignment.bottomCenter,
-          //   colors: [Color(0xFFD0FFD0), Color(0xFF90EE90)],
-          // ),
           color: Color(0xFFFFF9F2),
         ),
         child: Padding(

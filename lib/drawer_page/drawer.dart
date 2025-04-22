@@ -4,6 +4,7 @@ import 'package:smartproductive_app/Article_page/article_page.dart';
 import 'package:smartproductive_app/home_page/home_page.dart';
 import 'package:smartproductive_app/prod_buddy/prod_buddy.dart';
 import 'package:smartproductive_app/reports_page/reports_page.dart';
+import 'package:smartproductive_app/settings_page/settings_page.dart';
 import 'package:smartproductive_app/store_page/store_page.dart';
 import 'package:smartproductive_app/task_page/task_pages.dart';
 
@@ -57,6 +58,12 @@ class CustomDrawer extends StatelessWidget {
               icon: Icons.auto_graph_sharp,
               text: 'R E P O R T S',
               page: ReportsPage(), // Add page when implemented
+            ),
+            _buildDrawerItem(
+              context,
+              icon: Icons.info_outlined,
+              text: 'H E L P  &  I N F O',
+              page: InfoSettingsPage(), // Add page when implemented
             ),
             Divider(), // Adds a separator before logout
             _buildLogoutItem(context), // Logout button
