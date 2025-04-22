@@ -12,7 +12,7 @@ class InfoSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings',
+        title: Text('Help & Info',
             style: GoogleFonts.alike(
                 fontWeight: FontWeight.bold, fontSize: 22)),
         backgroundColor: const Color(0xFF4FC3F7),

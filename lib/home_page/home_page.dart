@@ -555,14 +555,6 @@ class _HomePageState extends State<HomePage> {
       
       body: Container(
         decoration: BoxDecoration(
-        //   gradient: LinearGradient(
-        //     begin: Alignment.topCenter,
-        //     end: Alignment.bottomCenter,
-        //     colors: [
-        //       Color(0xFFD0FFD0), // Gentle Minty Green
-        //       Color(0xFF90EE90), // Soft Light Green
-        //     ],
-        //   ),
         color: Color(0xFFFFF9F2),
      ),
 
