@@ -238,7 +238,7 @@ SmartProductive was developed for academic learning and demonstration. Product n
 ## Author
 
 **Project:** SmartProductive  
-**Developer:** <YOUR_NAME>  
-**Institution:** <YOUR_COLLEGE_OR_INSTITUTION>
+**Developer:** SOHAM NAIK  
+**Institution:** Mumbai University
 
 Replace the placeholders above with your details before publishing the README.
